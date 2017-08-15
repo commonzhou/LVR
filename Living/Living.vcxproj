@@ -39,6 +39,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\Pre-built.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -78,11 +80,15 @@
     <ClInclude Include="AVPacketManager.h" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="prefix.h" />
+    <ClInclude Include="RateControl.h" />
+    <ClInclude Include="TranscoderManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp" />
     <ClCompile Include="AVPacketManager.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="RateControl.cpp" />
+    <ClCompile Include="TranscoderManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

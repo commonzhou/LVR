@@ -27,6 +27,12 @@
     <ClInclude Include="prefix.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="RateControl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TranscoderManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp">
@@ -36,6 +42,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MessageManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RateControl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TranscoderManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

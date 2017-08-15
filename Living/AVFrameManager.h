@@ -10,6 +10,8 @@ struct AVFrameNode {
     int height;
     UINT8 used_flag;
     UINT8 used_mask;
+    //-------- 
+    //备用-备用-备用-备用-码控完成flag-全局映射完成flag-Tile划分完成flag-编码完成flag
     struct AVFrameNode *next;
     AVFrameNode():width(0),height(0),used_mask(0),used_flag(0){
         Yframe = NULL;
