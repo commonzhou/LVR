@@ -33,6 +33,9 @@
     <ClInclude Include="TranscoderManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ControllerConnect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp">
@@ -50,5 +53,13 @@
     <ClCompile Include="TranscoderManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ControllerConnect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Questions.md">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

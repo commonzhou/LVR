@@ -82,6 +82,7 @@
     <ClInclude Include="prefix.h" />
     <ClInclude Include="RateControl.h" />
     <ClInclude Include="TranscoderManager.h" />
+    <ClInclude Include="ControllerConnect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp" />
@@ -89,6 +90,10 @@
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="RateControl.cpp" />
     <ClCompile Include="TranscoderManager.cpp" />
+    <ClCompile Include="ControllerConnect.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Questions.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
