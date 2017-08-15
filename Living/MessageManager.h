@@ -1,6 +1,10 @@
 #ifndef MESSAGEMANAGER_H
 #define MESSAGEMANAGER_H
 #include "prefix.h"
+
+
+
+
 struct MessageNode {
     INT8 *CString;
     int size;
@@ -64,7 +68,7 @@ struct MessageList {
 
 struct MessageManager {
     int StreamNum; // 当前节点要编码的数量, tile+音频+全图
-    struct MessageList *pVHead; // 每个encoder对应一个list
+    struct MessageList *pVHead; // 每个transcoder对应一个list
     struct MessageList *pVTail;
 
     MessageManager():StreamNum(0) {
@@ -79,6 +83,13 @@ struct MessageManager {
         pVTail = NULL;
     }
 };
+
+
+struct InfoNode {
+    SOCKET * socketID;
+    MessageList *messageList;
+};
+
 
 
 int create_messageManager(MessageManager *messageMag,int StreamNum);

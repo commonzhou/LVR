@@ -83,5 +83,8 @@ struct VRLSParam {
     int serverport;
     struct TranscoderParam *TransParam;
 };
+
+
+
 #endif
 
