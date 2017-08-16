@@ -25,6 +25,7 @@ struct PacketNode {
     struct PacketNode *next;
     PacketNode():size(0),PTS(0),used_flag(0) {
         bitstream = NULL;
+        next = NULL;
     }
     ~PacketNode() {
         free(bitstream);
@@ -44,6 +45,7 @@ struct AVPacketList {
         pVHead = new PacketNode();
         pVTail = new PacketNode();
         present = new PacketNode();
+        next = NULL;
     }
     ~AVPacketList() {
         PacketNode *node = pVHead;

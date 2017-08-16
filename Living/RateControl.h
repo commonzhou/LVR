@@ -4,9 +4,9 @@
 #include "AVFrameManager.h"
 #include "MessageManager.h"
 
-int init_rateControl(pthread_t *rateControl, VRLSParam *VRLS_param,AVFrameList *pfvlist,MessageList *pmlist, void *private);
+int init_rateControl(pthread_t *rateControl, VRLSParam *VRLS_param,AVFrameList *pfvlist,MessageList *pmlist, void *privateSpace);
 
-int activate_rateControl(pthread_t *rateControl, void *private, AVFrameList *pfvlist, MessageList *pmlist);
+int activate_rateControl(pthread_t *rateControl, void *privateSpace, AVFrameList *pfvlist, MessageList *pmlist);
 
-int destroy_rateControl(pthread_t *rateControl, void *private);
+int destroy_rateControl(pthread_t *rateControl, void *privateSpace );
 #endif

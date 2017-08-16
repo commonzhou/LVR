@@ -106,9 +106,10 @@ int update_AVFrameList( AVFrameList *pList,UINT8 used_mask,HANDLE *mutex )
     if(pList == NULL) {
         return -1;
     }
+    
     AVFrameNode *pNode = pList->pVhead;
     while(pNode != NULL) {
-        // TODO: 针对不同的位运算结果进行操作
+        // UNDONE: 针对不同的位运算结果进行操作
         pNode = pNode->next;
     }
     ReleaseMutex(mutex);
