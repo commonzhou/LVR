@@ -1,10 +1,14 @@
 #ifndef PREFIX_H
 #define PREFIX_H
-#include <stdio.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
-#include <stdlib.h>
-#include <pthread.h>
 #include <WinSock2.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <process.h>
+#include <pthread.h>
 #pragma comment(lib,"pthreadVC2.lib")
 #pragma comment(lib,"ws2_32.lib")
 
@@ -16,7 +20,8 @@
 
 enum MEDIAType {
     MEDIA_AUDIO = 1,
-    MEDIA_VIDEO
+    MEDIA_VIDEO,
+    MEDIA_NONE
 };
 
 enum StreamingType {
@@ -70,6 +75,7 @@ struct EncNodeParam {
     int AudioChannle;
 };
 
+// 
 struct TranscoderParam {
     char IP[16];
     int EncNum;
@@ -77,6 +83,7 @@ struct TranscoderParam {
     struct TranscoderParam *next;
 };
 
+// 这是从XML文件中读取出来的配置文件,控制着每个计算节点
 struct VRLSParam {
     StreamingType inputFormat;
     StreamingType outputFormat;
@@ -108,7 +115,7 @@ struct InitialPayload {
 struct TLV {
     UINT8 type;
     UINT32 length;
-    (void *)payload;
+    void * payload;
 };
 
 

@@ -2,19 +2,22 @@
 #define MESSAGEMANAGER_H
 #include "prefix.h"
 
-
-
-
 struct MessageNode {
     INT8 *CString;
     int size;
     int used_flag;
+    struct TLV *message;
+    struct TranscoderParam *transcoderParam;
     struct MessageNode *next;
-    MessageNode():size(0),used_flag(0) {
-        CString = NULL;
+    MessageNode(): CString(NULL),size(0),used_flag(0),next(NULL){
+        message = new TLV();
+        transcoderParam = new TranscoderParam();
     }
     ~MessageNode() {
         free(CString);
+        delete message;
+        message = NULL;
+        CString = NULL;
     }
 };
 
@@ -27,10 +30,11 @@ struct subMessageList {
         pHead = new MessageNode();
         pTail = new MessageNode();
         present = new MessageNode();
+        next = NULL;
     }
     ~subMessageList() {
         MessageNode *node = pHead;
-        MessageNode *ptr = node;
+        MessageNode *ptr = pHead;
         while(node != NULL) {
             ptr = node->next;
             delete(node);
@@ -54,6 +58,7 @@ struct MessageList {
         pSRCL = new subMessageList();
         pRRCL = new subMessageList();
         pRCL = new subMessageList();
+        next = NULL;
     }
     ~MessageList() {
         delete pSRCL;
