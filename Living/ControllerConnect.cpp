@@ -1,11 +1,31 @@
 #include "ControllerConnect.h"
 
-static void *sendMessage(void *params) {
-    MessageList *pList = (MessageList *)params;
+static void *controllerConnect_SendMessage(void *params) {
+    InfoNode *node = (InfoNode *)params;
+    MessageList *list = node->messageList;
+    SOCKET *socketID = node->socketID;
+
+    // TODO: Some fake messages;
+    char *message = "Hello, world\n";
+    if (send(*socketID,message,strlen(message),0) == -1) {
+         printf("Error sending: %s\n",__FUNCTION__);
+#ifdef  DEBUG
+        debug_print("Error:");
+#endif
+         pthread_exit(NULL);
+    }
 }
 
-static void *receiveMessage(void *params) {
-    MessageList *pList = (MessageList *)params;
+static void *controllerConnect_ReceiveMessage(void *params) {
+    InfoNode *node = (InfoNode *)params;
+    MessageList *list = node->messageList;
+    SOCKET *socketID = node->socketID;
+
+    int recvSize;
+    char server_reply[200];
+    if ((recvSize = recv(*socketID,server_reply,200,0)) == SOCKET_ERROR) {
+        pthread_exit(NULL);
+    }
 }
 
 //************************************
@@ -25,7 +45,7 @@ int create_socket( char *IP_SERVER, int portID, void *privateSpace, SOCKET *sock
         printf("Initialised failed : %d\n",WSAGetLastError());
         return -1;
     }
-
+    socket_port = (SOCKET *)malloc(sizeof(SOCKET)); 
     if ((*socket_port = socket(AF_INET,SOCK_STREAM,0)) == INVALID_SOCKET) {
         printf("Could not create socket : %d\n",WSAGetLastError());
     }
@@ -33,13 +53,13 @@ int create_socket( char *IP_SERVER, int portID, void *privateSpace, SOCKET *sock
     server.sin_addr.s_addr = inet_addr(IP_SERVER);
     server.sin_family = AF_INET;
     server.sin_port = htons(portID);
-
-
-    if(connect(*socket_port, (struct sockaddr *)&server, sizeof(server)) < 0) {
+    if(connect(*socket_port, &server, sizeof(server)) < 0) {
         printf("Connect Error\n");
         return -1;
     }
     return 0;
+
+    
 }
 
 
@@ -55,11 +75,17 @@ int create_socket( char *IP_SERVER, int portID, void *privateSpace, SOCKET *sock
 // Parameter: MessageList * pList
 //************************************
 int activate_receive(pthread_t *receiver, void *privateSpace, SOCKET *socket_port, MessageList * pList) {
-    int error = pthread_create(receiver,NULL,receiveMessage,(void *)pList);
-    if(error != 0) {
-        return -1;
+
+    InfoNode *node = new InfoNode();
+    node->messageList = pList;
+    node->socketID = socket_port;
+    
+    int error = pthread_create(receiver,NULL,controllerConnect_ReceiveMessage,(void *)node);
+    if(error == -1) {
+        
     }
 
+    return 0;
 }
 
 //************************************
@@ -72,7 +98,7 @@ int activate_receive(pthread_t *receiver, void *privateSpace, SOCKET *socket_por
 // Parameter: void * privateSpace
 //************************************
 int destroy_receive(pthread_t *receiver,void *privateSpace) {
-    pthread_exit(receiver);
+    pthread_exit(privateSpace);
 }
 
 //************************************
@@ -87,11 +113,16 @@ int destroy_receive(pthread_t *receiver,void *privateSpace) {
 // Parameter: MessageList * pList
 //************************************
 int activate_send(pthread_t *send, void *privateSpace, SOCKET *socket_port, MessageList *pList) {
-    // TODO: 和发送绑定的函数是谁？
-    int error = pthread_create(send, NULL, sendMessage, (void *)pList);
+    
+    InfoNode *node = new InfoNode();
+    node->messageList = pList;
+    node->socketID = socket_port;
+    
+    int error = pthread_create(send, NULL, controllerConnect_SendMessage, (void *)node);
     if (error != 0) {
         return -1;
     }
+
 }
 
 //************************************

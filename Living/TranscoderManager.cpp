@@ -9,7 +9,19 @@ pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 int status = STOP;
 
 static void *handleMessage(void *params) {
-    MessageList *pList = (MessageList *)params;
+    InfoNode *node = (InfoNode *)params;
+    MessageList *list = node->messageList;
+    SOCKET *socketID = node->socketID;
+    TLV receivedTLV;
+
+
+    // 这里拿到的socket应该是绑定好的，并且已经处于listen状态下
+    int read_size;
+    char *buffer = new char[sizeof (TLV)];
+    while ((read_size = recv(*socketID, buffer, sizeof(TLV), 0)) > 0) {
+        memcpy(&receivedTLV, buffer, sizeof(TLV));
+        // TODO: 对收到的信息进行解析
+    };
     while(1)
     {
         pthread_mutex_lock(&mut);
@@ -33,6 +45,7 @@ static void *handleMessage(void *params) {
 // Parameter: MessageList * pList 需要更新其中的码控反馈信息和编码信息进度列表
 // Parameter: void * private 线程私有空间
 //************************************
+
 int init_transcoderManager( pthread_t *transcoderManager, SOCKET *socketID,MessageList *pList,void *privateSpace )
 { 
  //************************************
@@ -60,19 +73,21 @@ int init_transcoderManager( pthread_t *transcoderManager, SOCKET *socketID,Messa
         return -1;
     }
 
-     err = pthread_create(
-        transcoderManager,NULL,handleMessage,(void *)pList);
+    InfoNode *info = new InfoNode();
+    info->messageList = pList;
+    info->socketID = socketID;
+    int err = pthread_create(
+        transcoderManager,NULL,handleMessage,(void *)info);
     if(err != 0) {
         return -1;
     }
+    closesocket(*socketID);
+    WSACleanup();
+    return 0; 
 
  //************************************
  //Socket will be destroyed here
  //************************************
-    closesocket(*socketID);
-    WSACleanup();
-    return 0;
-}
 
 
 
@@ -113,8 +128,8 @@ int activate_transcoderManager(pthread_t *transcoderManager, SOCKET *socketID, M
 // Parameter: void * private
 //************************************
 int destroy_transcoderManager( pthread_t *transcoderManager,void *privateSpace ) {
-     
+
+    pthread_cancel(*transcoderManager);
     pthread_exit(NULL);
-    //pthread_join(*transcoderManager, NULL);
     return 0;
 }

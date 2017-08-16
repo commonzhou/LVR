@@ -3,7 +3,7 @@
 #include "prefix.h"
 #include "MessageManager.h"
 
-
+struct sockaddr_in server,client;
 
 int init_transcoderManager(pthread_t *transcoderManager, SOCKET *socketID,MessageList *pList,void *privateSpace);
 

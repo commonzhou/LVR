@@ -8,6 +8,13 @@
 #include <WinSock2.h>
 #pragma comment(lib,"pthreadVC2.lib")
 #pragma comment(lib,"ws2_32.lib")
+
+#define debug_print(fmt, ...) \
+    do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
+    __LINE__, __func__, __VA_ARGS__); } while (0)
+
+
+
 enum MEDIAType {
     MEDIA_AUDIO = 1,
     MEDIA_VIDEO
@@ -83,6 +90,34 @@ struct VRLSParam {
     int transcoderNodeNum;
     int serverport;
     struct TranscoderParam *TransParam;
+};
+
+
+
+struct EncodingParam {
+    UINT8 paramType;
+    UINT32 value;
+};
+
+
+struct InitialPayload {
+    UINT8 encNum;
+    UINT8 paramNum;
+    struct EncodingParam *params; 
+};
+
+struct TLV {
+    UINT8 type;
+    UINT32 length;
+    (void *)payload;
+};
+
+
+struct EncodeSpeed {
+    long outputStreamIndex;
+    UINT64 pts;
+    UINT8 averageFrameRate;
+    UINT8 instantFrameRate;
 };
 #endif
 
