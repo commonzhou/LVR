@@ -5,9 +5,9 @@
 
 struct sockaddr_in server,client;
 
-int init_transcoderManager(pthread_t *transcoderManager, SOCKET *socketID,MessageList *pList,void *privateSpace);
+int init_transcoderManager(HANDLE transcoderManager, SOCKET *socketID,MessageList *pList,void *privateSpace);
 
-int activate_transcoderManager(pthread_t *transcoderManager, SOCKET *socketID, MessageList *pList, void *privateSpace);
+int activate_transcoderManager(HANDLE transcoderManager, SOCKET *socketID, MessageList *pList, void *privateSpace);
 
-int destroy_transcoderManager(pthread_t *transcoderManager,void *privateSpace);
+int destroy_transcoderManager(HANDLE transcoderManager,void *privateSpace);
 #endif
