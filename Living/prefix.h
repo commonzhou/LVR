@@ -2,6 +2,7 @@
 #define PREFIX_H
 #include <stdio.h>
 #include <windows.h>
+#include <string.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <WinSock2.h>
