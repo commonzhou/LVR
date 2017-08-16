@@ -4,20 +4,16 @@ static void *handleMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = node->messageList;
     SOCKET *socketID = node->socketID;
-    
-    
-    // TODO: 临时解决方案，暂时认为发送的为编码参数的结构体,编码参数应该是可以访问到的
-    struct TranscoderParam param;
-    if(send(*socketID, (char *)&param, sizeof(param),0) < 0) {
-        printf("Error while sending: %s\n",__FUNCTION__);
+    TLV receivedTLV;
+
+
+    // 这里拿到的socket应该是绑定好的，并且已经处于listen状态下
+    int read_size;
+    char *buffer = new char[sizeof (TLV)];
+    while ((read_size = recv(*socketID, buffer, sizeof(TLV), 0)) > 0) {
+        memcpy(&receivedTLV, buffer, sizeof(TLV));
+        // TODO: 对收到的信息进行解析
     }
-    // TODO: 临时解决方案，用一个字符串来模拟发送的消息
-    char message[500] = {'0'};
-    int recv_size = 0;
-    if ((recv_size = recv(*socketID,message,500,0)) == SOCKET_ERROR) {
-        printf("Error while receiving: %s\n",__FUNCTION__);
-    }
-    message[recv_size] = '\0';
 }
 
 //************************************

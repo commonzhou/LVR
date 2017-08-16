@@ -1,6 +1,6 @@
 #include "ControllerConnect.h"
 
-static void *sendMessage(void *params) {
+static void *controllerConnect_SendMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = node->messageList;
     SOCKET *socketID = node->socketID;
@@ -9,11 +9,14 @@ static void *sendMessage(void *params) {
     char *message = "Hello, world\n";
     if (send(*socketID,message,strlen(message),0) == -1) {
          printf("Error sending: %s\n",__FUNCTION__);
+#ifdef  DEBUG
+        debug_print("Error:");
+#endif
          pthread_exit(NULL);
     }
 }
 
-static void *receiveMessage(void *params) {
+static void *controllerConnect_ReceiveMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = node->messageList;
     SOCKET *socketID = node->socketID;
@@ -21,7 +24,6 @@ static void *receiveMessage(void *params) {
     int recvSize;
     char server_reply[200];
     if ((recvSize = recv(*socketID,server_reply,200,0)) == SOCKET_ERROR) {
-        printf("Error receiving: %s\n",__FUNCTION__);
         pthread_exit(NULL);
     }
 }
@@ -51,7 +53,7 @@ int create_socket( char *IP_SERVER, int portID, void *privateSpace, SOCKET *sock
     server.sin_addr.s_addr = inet_addr(IP_SERVER);
     server.sin_family = AF_INET;
     server.sin_port = htons(portID);
-    if(connect(*socket_port, (struct sockaddr *)&server, sizeof(server)) < 0) {
+    if(connect(*socket_port, &server, sizeof(server)) < 0) {
         printf("Connect Error\n");
         return -1;
     }
@@ -73,11 +75,17 @@ int create_socket( char *IP_SERVER, int portID, void *privateSpace, SOCKET *sock
 // Parameter: MessageList * pList
 //************************************
 int activate_receive(pthread_t *receiver, void *privateSpace, SOCKET *socket_port, MessageList * pList) {
-    int error = pthread_create(receiver,NULL,receiveMessage,(void *)pList);
-    if(error != 0) {
-        return -1;
+
+    InfoNode *node = new InfoNode();
+    node->messageList = pList;
+    node->socketID = socket_port;
+    
+    int error = pthread_create(receiver,NULL,controllerConnect_ReceiveMessage,(void *)node);
+    if(error == -1) {
+        
     }
 
+    return 0;
 }
 
 //************************************
@@ -110,7 +118,7 @@ int activate_send(pthread_t *send, void *privateSpace, SOCKET *socket_port, Mess
     node->messageList = pList;
     node->socketID = socket_port;
     
-    int error = pthread_create(send, NULL, sendMessage, (void *)node);
+    int error = pthread_create(send, NULL, controllerConnect_SendMessage, (void *)node);
     if (error != 0) {
         return -1;
     }
