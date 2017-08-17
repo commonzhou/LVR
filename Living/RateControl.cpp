@@ -1,5 +1,5 @@
 #include "RateControl.h"
-pthread_key_t key;
+
 
 //************************************
 // Method:    获取VRLS_param中的Tile mapping方式等信息，创建rateControl线程，线程suspend
@@ -13,13 +13,9 @@ pthread_key_t key;
 // Parameter: MessageList * pmlist 输出码控信息到链表
 // Parameter: void * private 线程私有空间
 //************************************
-int init_rateControl( pthread_t *rateControl, VRLSParam *VRLS_param,AVFrameList *pfvlist,MessageList *pmlist, void *privateSpace )
+int init_rateControl( HANDLE *rateControl, VRLSParam *VRLS_param,AVFrameList *pfvlist,MessageList *pmlist, void *privateSpace )
 {
-    int err = pthread_create(
-        rateControl,NULL,NULL,NULL);
-    if (err != 0) {
-        return -1;
-    }
+
     return 0;
 }
 
@@ -34,7 +30,7 @@ int init_rateControl( pthread_t *rateControl, VRLSParam *VRLS_param,AVFrameList 
 // Parameter: AVFrameList * pfvlist 输入帧链表
 // Parameter: MessageList * pmlist 输出码控信息到链表
 //************************************
-int activate_rateControl( pthread_t *rateControl, void *privateSpace, AVFrameList *pfvlist, MessageList *pmlist ) {
+int activate_rateControl( HANDLE *rateControl, void *privateSpace, AVFrameList *pfvlist, MessageList *pmlist ) {
 
 
     return 0;
@@ -49,7 +45,7 @@ int activate_rateControl( pthread_t *rateControl, void *privateSpace, AVFrameLis
 // Parameter: pthread * rateControl rateControl线程句柄
 // Parameter: void * private 线程私有空间
 //************************************
-int destroy_rateControl( pthread_t *rateControl, void *privateSpace ) {
+int destroy_rateControl( HANDLE *rateControl, void *privateSpace ) {
 
     return 0;
 }

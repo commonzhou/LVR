@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp" />
     <ClCompile Include="AVPacketManager.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="RateControl.cpp" />
     <ClCompile Include="TranscoderManager.cpp" />

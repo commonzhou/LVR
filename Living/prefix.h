@@ -8,14 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <process.h>
-#include <pthread.h>
-#pragma comment(lib,"pthreadVC2.lib")
 #pragma comment(lib,"ws2_32.lib")
 
 #define debug_print(fmt, ...) \
     do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
     __LINE__, __func__, __VA_ARGS__); } while (0)
-
 
 
 enum MEDIAType {
@@ -98,15 +95,13 @@ struct VRLSParam {
     struct TranscoderParam *TransParam;
 };
 
-
-
 struct EncodingParam {
     UINT8 paramType;
     UINT32 value;
 };
 
 
-struct InitialPayload {
+struct InitPayload {
     UINT8 encNum;
     UINT8 paramNum;
     struct EncodingParam *params; 
@@ -118,6 +113,11 @@ struct TLV {
     void * payload;
 };
 
+struct InitPayloadTLV {
+    UINT8 type;
+    UINT32 length;
+    struct InitPayload payload;
+};
 
 struct EncodeSpeed {
     long outputStreamIndex;
