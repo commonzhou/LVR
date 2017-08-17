@@ -4,7 +4,7 @@
 #include "MessageManager.h"
 char *IP_SERVER = "192.168.4.97";
 int portID = 7747;
-#define handleNum 5
+#define handleNum 10
 int main () {
     HANDLE receiversHandle[handleNum];
     HANDLE sendersHandle[handleNum];

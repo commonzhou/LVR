@@ -40,8 +40,6 @@ int init_transcoderManager( HANDLE *transcoderManager, SOCKET *socketID,MessageL
     return 0;
 }
 
-
-
 //************************************
 // Method:    线程从挂起状态唤醒
 // FullName:  activate_transcoderManager

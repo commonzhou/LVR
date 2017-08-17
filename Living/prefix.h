@@ -8,12 +8,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <process.h>
+#include <string.h>
 #pragma comment(lib,"ws2_32.lib")
 
+#ifdef DEBUG
 #define debug_print(fmt, ...) \
     do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
     __LINE__, __func__, __VA_ARGS__); } while (0)
-
+#endif
 
 enum MEDIAType {
     MEDIA_AUDIO = 1,
@@ -100,11 +102,14 @@ struct EncodingParam {
     UINT32 value;
 };
 
+struct ParamNode {
+    UINT8 paramNum;
+    struct EncodingParam *param;
+};
 
 struct InitPayload {
     UINT8 encNum;
-    UINT8 paramNum;
-    struct EncodingParam *params; 
+    ParamNode *paramList;
 };
 
 struct TLV {
@@ -113,10 +118,10 @@ struct TLV {
     void * payload;
 };
 
-struct InitPayloadTLV {
+struct FlexibleTLV {
     UINT8 type;
     UINT32 length;
-    struct InitPayload payload;
+    char payload[0];
 };
 
 struct EncodeSpeed {

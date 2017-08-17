@@ -1,7 +1,6 @@
 #include "ControllerConnect.h"
 struct sockaddr_in server_addr;
-struct InitPayloadTLV initPayload_TLV;
-HANDLE hMutex;
+#define bufferSize 4096
 unsigned int _stdcall sendMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = NULL;
@@ -11,22 +10,17 @@ unsigned int _stdcall sendMessage(void *params) {
     } 
     if (node->socketID != NULL) {
         socketID = node->socketID;
-        /*printf("node socket id is %d\n", *node->socketID);
-        printf("socket id:%d, %s\n", *socketID, __FUNCTION__);*/
     }
-    //while(true) {
-        for (int i = 0; i < 20; i++) {
-            //WaitForSingleObject(hMutex, INFINITE);
-
-            char *message = "Tamarous\n";
-            if (send(*socketID, message, strlen(message), 0) == -1) {
-                printf("Error sending: %s\n", __FUNCTION__);
-                return -1;
-            }
-            //ReleaseMutex(hMutex);
+    for (int i = 0; i < 5; i++) {           
+        char *message = "Tamarous\n";
+        if (send(*socketID, message, strlen(message), 0) == -1) {
+            printf("Error sending: %s\n", __FUNCTION__);
+            return -1;
         }
-    //}
-    // UNDONE: 暂时用的是假数据
+        printf("socketID:%d\t,index:%d:\tSend successfully.%s\n", *socketID,i,message);
+            
+    }
+    
     return 0;
 }
 
@@ -34,15 +28,31 @@ unsigned int _stdcall receiveMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = node->messageList;
     SOCKET *socketID = node->socketID;
+    struct FlexibleTLV *flexibleTLV = NULL;
 
     int readSize = 0;
-    char buffer[2000] = {'0'};
-    while((readSize = recv(*socketID, buffer, 2000, 0)) > 0) {
-        //WaitForSingleObject(hMutex, INFINITE);
-        buffer[readSize] = '\0';   
+    char buffer[bufferSize] = {'0'};
+    while((readSize = recv(*socketID, buffer, bufferSize, 0)) > 0) {
+        buffer[readSize] = '\0';
+
+        // 首先解析出类型信息
+        UINT8 *type = (UINT8 *)malloc(sizeof(UINT8)); 
+        memcpy(type, buffer, sizeof(UINT8));
+        if(*type == 0x01) {
+            // 然后解析TLV中的长度信息
+            UINT32 *length = (UINT32 *)malloc(sizeof(UINT32)); 
+            memcpy(length, buffer + sizeof(UINT8), sizeof(UINT32));
+
+            // 解析InitPayload
+            struct InitPayload *initPayload = (struct InitPayload*)malloc(sizeof(struct InitPayload));
+            // 经过memcpy之后,initPayload之中应该就具有了应有的信息,然后需要initPayload之中的指针进一步解析ParamNode的信息.
+            memcpy(initPayload, buffer + sizeof(UINT8) + sizeof(UINT32), sizeof(struct InitPayload));
+
+            // 解析encNum和paramNum
+            
+        }
         puts(buffer);
-        memset(buffer, 0, 2000);
-        //ReleaseMutex(hMutex);
+        memset(buffer, 0, bufferSize);
     }
     return 0;
 }
@@ -105,7 +115,6 @@ int activate_receive(HANDLE *receiver, void *privateSpace, SOCKET *socket_port, 
     }
 
     *receiver = (HANDLE)_beginthreadex(NULL, 0, receiveMessage, (void *)node, 0, NULL);
-
     return 0;
 }
 
