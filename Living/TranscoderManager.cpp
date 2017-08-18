@@ -1,28 +1,19 @@
 #include "TranscoderManager.h"
-
+#define LENGTH_OF_LISTEN_QUEUE     20
 
 unsigned int _stdcall handleMessage(void *params) {
 
     InfoNode *node = (InfoNode *)params;
     MessageList *list = node->messageList;
     SOCKET *socketID = node->socketID;
-    TLV receivedTLV;
-    WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
-    {
-        printf("Failed. Error Code : %d",WSAGetLastError());
-    }
+    //TLV receivedTLV;
+    char receivedTLV;
     int readSize;
     char *buffer = new char[sizeof (TLV)];
     while ((readSize = recv(*socketID, buffer, sizeof(TLV), 0)) > 0) {
         memcpy(&receivedTLV, buffer, sizeof(TLV));
 
     }
-  //************************************
- //Socket will be destroyed here
- //************************************
-    closesocket(*socketID);
-    WSACleanup();
 
     return 0;
 }
@@ -44,16 +35,54 @@ int init_transcoderManager( HANDLE *transcoderManager, SOCKET *socketID,MessageL
     InfoNode *info = new InfoNode();
     info->messageList = pList;
     info->socketID = socketID;
+    SOCKET new_socket;
+    int length;
 
-    transcoderManager = (HANDLE *)malloc(sizeof(HANDLE));
-    *transcoderManager = (HANDLE)_beginthreadex(NULL, 0, handleMessage, (void *)info, CREATE_SUSPENDED, NULL);
-    if(*transcoderManager==0){
-        printf("CreateThread failed (%d)\n", GetLastError());
+    if((*socketID = socket(AF_INET , SOCK_STREAM , 0 )) == INVALID_SOCKET)
+    {
+        printf("Could not create socket : %d" , WSAGetLastError());
+    }
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(7747);
+    if( bind(*socketID ,(struct sockaddr *)&server , sizeof(server))==SOCKET_ERROR)
+    {
+        printf("Bind failed with error code : %d" , WSAGetLastError());
         return -1;
     }
+    if (listen(*socketID, LENGTH_OF_LISTEN_QUEUE))
+    {
+        printf("Server Listen Failed : %d\n" , WSAGetLastError());
+        return -1;
+    }
+    length= sizeof(struct sockaddr_in);
+    while(1){
+        new_socket = accept(*socketID , (struct sockaddr *)&client, &length);
+        if (new_socket <0)
+        {
+            printf("accept failed with error code : %d" , WSAGetLastError());
+            return -1;
+        }
+        info->socketID =&new_socket;
+        puts("Connection accepted");
+
+        printf("accept is:%d\n",new_socket);
+        transcoderManager = (HANDLE *)malloc(sizeof(HANDLE));
+        *transcoderManager = (HANDLE)_beginthreadex(NULL, 0, handleMessage, (void *)info,CREATE_SUSPENDED, NULL);
+        if(*transcoderManager==0){
+            printf("CreateThread failed (%d)\n", GetLastError());
+            return -1;
+        }
+        ResumeThread(*transcoderManager);
+        CloseHandle(*transcoderManager);
+    }
+    //************************************
+    //Socket will be destroyed here
+    //************************************
+    closesocket(*socketID);
+    WSACleanup();
     return 0;
 }
-
 
 
 //************************************
@@ -72,9 +101,10 @@ int activate_transcoderManager(HANDLE *transcoderManager, SOCKET *socketID, Mess
     if(ResumeThread(*transcoderManager)==-1){
         return -1;
     };
-    
+
     return 0;
 }
+
 
 //************************************
 // Method:    Ïß³ÌÏú»Ù
