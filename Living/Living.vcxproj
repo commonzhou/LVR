@@ -83,14 +83,19 @@
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="prefix.h" />
     <ClInclude Include="RateControl.h" />
+    <ClInclude Include="tlv.h" />
+    <ClInclude Include="tlv_box.h" />
     <ClInclude Include="TranscoderManager.h" />
     <ClInclude Include="ControllerConnect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp" />
     <ClCompile Include="AVPacketManager.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="RateControl.cpp" />
+    <ClCompile Include="tlv.cpp" />
+    <ClCompile Include="tlv_box.cpp" />
     <ClCompile Include="TranscoderManager.cpp" />
     <ClCompile Include="ControllerConnect.cpp" />
   </ItemGroup>

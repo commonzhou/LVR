@@ -93,6 +93,17 @@ struct MessageManager {
 struct InfoNode {
     SOCKET * socketID;
     MessageList *messageList;
+    InfoNode():socketID(NULL),messageList(NULL){}
+    ~InfoNode() {
+        if (!socketID) {
+            delete socketID;
+            socketID = NULL;
+        }
+        if(! messageList) {
+            delete messageList;
+            messageList = NULL;
+        }
+    }
 };
 
 

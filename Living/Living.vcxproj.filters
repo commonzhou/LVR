@@ -36,6 +36,12 @@
     <ClInclude Include="ControllerConnect.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="tlv.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tlv_box.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp">
@@ -54,6 +60,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ControllerConnect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tlv.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tlv_box.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

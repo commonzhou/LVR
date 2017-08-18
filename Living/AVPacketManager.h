@@ -1,21 +1,7 @@
 #ifndef AVPACKETMANAGER_H
 #define AVPACKETMANAGER_H
 #include "prefix.h"
-struct AVPacketManager {
-    int StreamNum;
-    struct AVPacketList *pVHead;
-    struct AVPacketList *pVTail;
-    AVPacketManager():StreamNum(0) {
-        pVHead = new AVPacketList();
-        pVTail = new AVPacketList();
-    }
-    ~AVPacketManager() {
-        delete pVHead;
-        delete pVTail;
-        pVHead = NULL;
-        pVTail = NULL;
-    }
-};
+
 
 struct PacketNode {
     UINT8 *bitstream;
@@ -42,6 +28,7 @@ struct AVPacketList {
     struct PacketNode *present;
     struct AVPacketList *next;
     AVPacketList():streamID(0),tileID(0) {
+        type = MEDIA_NONE;
         pVHead = new PacketNode();
         pVTail = new PacketNode();
         present = new PacketNode();
@@ -61,6 +48,21 @@ struct AVPacketList {
     }
 };
 
+struct AVPacketManager {
+    int StreamNum;
+    struct AVPacketList *pVHead;
+    struct AVPacketList *pVTail;
+    AVPacketManager() :StreamNum(0) {
+        pVHead = new AVPacketList();
+        pVTail = new AVPacketList();
+    }
+    ~AVPacketManager() {
+        delete pVHead;
+        delete pVTail;
+        pVHead = NULL;
+        pVTail = NULL;
+    }
+};
 
 int create_AVPacketManager(AVPacketManager *AVPacketMag,int StreamNum);
 

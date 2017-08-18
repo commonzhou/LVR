@@ -8,15 +8,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <process.h>
-#include <pthread.h>
-#pragma comment(lib,"pthreadVC2.lib")
+#include <string.h>
 #pragma comment(lib,"ws2_32.lib")
 
+#ifdef DEBUG
 #define debug_print(fmt, ...) \
     do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
     __LINE__, __func__, __VA_ARGS__); } while (0)
-
-
+#endif
 
 enum MEDIAType {
     MEDIA_AUDIO = 1,
@@ -42,7 +41,6 @@ enum Type {
 
 enum CodecType {
     CT_H264 = 1,
-    CUDA_H264,
     CT_H265,
     CT_AAC
 };
@@ -64,8 +62,7 @@ struct EncNodeParam {
     int Tile_ID;
     CodecType vcodec;
     EncodePreset preset;
-    int width;
-    int height;
+    char resolution[16];
     int fps;
     int bitrate;
     int GOP;
@@ -73,11 +70,12 @@ struct EncNodeParam {
     int AudioSampleRate;
     int AudioBitrate;
     int AudioChannle;
+    EncNodeParam *next;
 };
 
-// 
+
 struct TranscoderParam {
-    char IP[16];
+    int TransID;
     int EncNum;
     struct EncNodeParam *EncNode;
     struct TranscoderParam *next;
@@ -88,28 +86,29 @@ struct VRLSParam {
     StreamingType inputFormat;
     StreamingType outputFormat;
     TileMappingType tileMapping;
-    UINT32 StreamID;
+    
     UINT8 stereoscopic;
     char inputAdd[1024];
     char outputAdd[1024];
-    char mpdName[1024];
-    int transcoderNodeNum;
+    char serverIP[16];
     int serverport;
+    int clusterNum;
     struct TranscoderParam *TransParam;
 };
-
-
 
 struct EncodingParam {
     UINT8 paramType;
     UINT32 value;
 };
 
-
-struct InitialPayload {
-    UINT8 encNum;
+struct ParamNode {
     UINT8 paramNum;
-    struct EncodingParam *params; 
+    struct EncodingParam *param;
+};
+
+struct InitPayload {
+    UINT8 encNum;
+    ParamNode *paramList;
 };
 
 struct TLV {
@@ -118,6 +117,11 @@ struct TLV {
     void * payload;
 };
 
+struct FlexibleTLV {
+    UINT8 type;
+    UINT32 length;
+    char payload[0];
+};
 
 struct EncodeSpeed {
     long outputStreamIndex;

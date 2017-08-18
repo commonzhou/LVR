@@ -1,20 +1,20 @@
 #include "TranscoderManager.h"
 #define LENGTH_OF_LISTEN_QUEUE     20
 
-unsigned int _stdcall handleMessage(void *params) {
 
+unsigned int _stdcall handleMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = node->messageList;
     SOCKET *socketID = node->socketID;
-    //TLV receivedTLV;
-    char receivedTLV;
+    //char *message = thisline->contents;
     int readSize;
-    char *buffer = new char[sizeof (TLV)];
-    while ((readSize = recv(*socketID, buffer, sizeof(TLV), 0)) > 0) {
-        memcpy(&receivedTLV, buffer, sizeof(TLV));
-
+    char buffer[2000];
+    //    send(*socketID , message , strlen(message) , 0);
+    while ((readSize = recv(*socketID, buffer, 2000, 0)) > 0) {
+        buffer[readSize] = '\0';
+        puts(buffer);
+        memset(buffer,0,2000);
     }
-
     return 0;
 }
 
