@@ -6,18 +6,14 @@ struct MessageNode {
     INT8 *CString;
     int size;
     int used_flag;
-    struct TLV *message;
-    struct TranscoderParam *transcoderParam;
     struct MessageNode *next;
     MessageNode(): CString(NULL),size(0),used_flag(0),next(NULL){
-        message = new TLV();
-        transcoderParam = new TranscoderParam();
+       
     }
     ~MessageNode() {
-        free(CString);
-        delete message;
-        message = NULL;
+        free(CString);        
         CString = NULL;
+        next = NULL;
     }
 };
 
@@ -26,11 +22,11 @@ struct subMessageList {
     struct MessageNode *pTail;
     struct MessageNode *present;
     struct subMessageList *next;
-    subMessageList() {
-        pHead = new MessageNode();
+    subMessageList():pHead(NULL),pTail(NULL),present(NULL),next(NULL) {
+        /*pHead = new MessageNode();
         pTail = new MessageNode();
         present = new MessageNode();
-        next = NULL;
+        next = NULL;*/
     }
     ~subMessageList() {
         MessageNode *node = pHead;
@@ -73,19 +69,30 @@ struct MessageList {
 
 struct MessageManager {
     int StreamNum; // 当前节点要编码的数量, tile+音频+全图
-    struct MessageList *pVHead; // 每个transcoder对应一个list
+    struct MessageList *pVHead; // 每个encoder对应一个list
     struct MessageList *pVTail;
 
     MessageManager():StreamNum(0) {
         pVHead = new MessageList();
-        pVTail = new MessageList();
+        pVTail = NULL;       
     }
 
     ~MessageManager() {
-        delete pVHead;
-        delete pVTail;
-        pVHead = NULL;
-        pVTail = NULL;
+        MessageList *node = pVHead;
+        MessageList *ptr = node;
+        while(node != NULL) {
+            ptr = node->next;
+            delete(node);
+            node = ptr;
+        }
+        if (pVHead != NULL) {
+            delete pVHead;
+            pVHead = NULL;
+        }
+        if (pVTail != NULL) {
+            delete pVTail;
+            pVTail = NULL;
+        }
     }
 };
 
@@ -108,17 +115,17 @@ struct InfoNode {
 
 
 
-int create_messageManager(MessageManager *messageMag,int StreamNum);
+int create_messageManager(MessageManager*& messageMag, int StreamNum);
 
-int create_messageNode(MessageNode *pNode);
+int create_messageNode(MessageNode*& pNode);
 
-int get_messageNode(MessageNode *pNode,subMessageList *pList);
+int get_messageNode(MessageNode*& pNode, subMessageList *pList);
 
 int add_messageNode(subMessageList *pList,MessageNode *message,HANDLE *mutex);
 
 int update_messageNode(subMessageList *pList, HANDLE *mutex);
 
-int delete_messageManager(MessageManager *messageMag, HANDLE *mutex);
+int delete_messageManager(MessageManager*& messageMag, HANDLE *mutex);
 
 
 #endif

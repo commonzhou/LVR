@@ -1,4 +1,6 @@
 #include "AVFrameManager.h"
+#include "catch.hpp"
+
 
 
 //************************************
@@ -11,7 +13,7 @@
 // Parameter: AVFrameManager * AVFrameMag 存放解码后待编码前的音视频链表地址
 // Parameter: int subpicNum 当前节点编码的Tile数量
 //************************************
-int create_AVFrameManager(AVFrameManager *AVFrameMag,int subpicNum) {
+int create_AVFrameManager(AVFrameManager*& AVFrameMag, int subpicNum) {
     AVFrameMag = new struct AVFrameManager();
     if(! AVFrameMag) {
         return -1;
@@ -36,7 +38,7 @@ int create_AVFrameManager(AVFrameManager *AVFrameMag,int subpicNum) {
 // Qualifier:
 // Parameter: AVFrameNode * pNode 创建的节点结构体
 //************************************
-int create_AVFrameNode(AVFrameNode *pNode) {
+int create_AVFrameNode(AVFrameNode*& pNode) {
     pNode = new AVFrameNode();
     if(pNode) {
         return 0;
@@ -54,7 +56,7 @@ int create_AVFrameNode(AVFrameNode *pNode) {
 // Parameter: AVFrameNode * pNode 获得的AVFrame节点
 // Parameter: AVFrameList * pList 寻找节点的链表
 //************************************
-int get_AVFrameNode(AVFrameNode *pNode,AVFrameList *pList) {
+int get_AVFrameNode(AVFrameNode*& pNode, AVFrameList *pList) {
     if(pList == NULL) {
         return -1;
     } 
@@ -80,11 +82,19 @@ int add_AVFrameNode(AVFrameList *pList,AVFrameNode *pNode,HANDLE *mutex) {
     if(pList == NULL) {
         return -1;
     }
+    if (pList->pVhead == NULL) {
+        pList->pVhead = pNode;
+        pList->pTail = pNode;
+        pList->present = pList->pTail;
+        pList->pTail->next = NULL;
+    } else {
+        pList->pTail->next = pNode;
+        pList->pTail = pNode;
+        pList->present = pList->pTail;
+        pList->pTail->next = NULL;
+        pNode->next = NULL;
+    }
     
-    pList->ptail = pNode;
-    pList->present = pNode;
-    pNode->next = NULL;
-
     pNode->used_flag = 0;
     ReleaseMutex(mutex);
     return 0;
@@ -125,7 +135,7 @@ int update_AVFrameList( AVFrameList *pList,UINT8 used_mask,HANDLE *mutex )
 // Parameter: AVFrameManager * AVFrameMag 待销毁的链表指针
 // Parameter: HANDLE * mutex 确保该帧管理链表未被其它使用
 //************************************
-int delete_AVFrameManager( AVFrameManager *AVFrameMag,HANDLE *mutex )
+int delete_AVFrameManager(AVFrameManager*& AVFrameMag, HANDLE *mutex)
 {
     WaitForSingleObject(mutex,INFINITE);
     delete AVFrameMag;
@@ -135,3 +145,36 @@ int delete_AVFrameManager( AVFrameManager *AVFrameMag,HANDLE *mutex )
 }
 
 
+//TEST_CASE("AVFrameManager.", "[AVFrameManager]") {
+//    AVFrameManager *manager = NULL;
+//    SECTION("create_AVFrameManager") {
+//        create_AVFrameManager(manager, 0);
+//        REQUIRE(manager != NULL);
+//        REQUIRE(manager->pProjectList != NULL);
+//        REQUIRE(manager->pSPM != NULL);
+//        REQUIRE(manager->psourceAList != NULL);
+//    }
+//    SECTION("add_AVFrameNode") {
+//        create_AVFrameManager(manager, 0);
+//        AVFrameNode *node = NULL;
+//        create_AVFrameNode(node);
+//        add_AVFrameNode(manager->pProjectList, node, NULL);
+//        REQUIRE(node != NULL);
+//    }
+//    SECTION("get_AVFrameNode") {
+//
+//        create_AVFrameManager(manager, 0);
+//        AVFrameNode *node = NULL;
+//        create_AVFrameNode(node);
+//        add_AVFrameNode(manager->pProjectList, node, NULL);
+//        AVFrameNode *node2 = NULL;
+//        get_AVFrameNode(node2, manager->pProjectList);
+//        REQUIRE(node2 != NULL);
+//    }
+//    SECTION("delete_AVFrameManager") {
+//        create_AVFrameManager(manager, 0);
+//        REQUIRE(manager != NULL);
+//        delete_AVFrameManager(manager, NULL);
+//        REQUIRE(manager == NULL);
+//    }
+//}
