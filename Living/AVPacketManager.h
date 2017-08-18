@@ -64,9 +64,9 @@ struct AVPacketManager {
     }
 };
 
-int create_AVPacketManager(AVPacketManager *AVPacketMag,int StreamNum);
+int create_AVPacketManager(AVPacketManager*& AVPacketMag, int StreamNum);
 
-int create_packetNode(PacketNode *pNode);
+int create_packetNode(PacketNode*& pNode);
 
 int get_packetNode(PacketNode *pNode,AVPacketList *pList);
 

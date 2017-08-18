@@ -1,6 +1,5 @@
 #include "AVPacketManager.h"
 
-
 //************************************
 // Method:    创建AVPacketManager结构体，创建结构体中的所有AVPacketList
 // FullName:  create_AVPacketManager
@@ -10,7 +9,7 @@
 // Parameter: AVPacketManager * AVPacketMag 创建链表空间，待存放读取的音视频数据包
 // Parameter: int StreamNum 当前节点要编码的数量, tile+音频+全图
 //************************************
-int create_AVPacketManager( AVPacketManager *AVPacketMag,int StreamNum )
+int create_AVPacketManager(AVPacketManager*& AVPacketMag, int StreamNum)
 {
     AVPacketMag = new AVPacketManager();
     if (AVPacketMag == NULL) {
@@ -28,7 +27,7 @@ int create_AVPacketManager( AVPacketManager *AVPacketMag,int StreamNum )
 // Qualifier:
 // Parameter: packetNode * pNode new创建节点结构体
 //************************************
-int create_packetNode( PacketNode *pNode )
+int create_packetNode(PacketNode*& pNode)
 {
     pNode = new PacketNode();
     if(pNode == NULL) {

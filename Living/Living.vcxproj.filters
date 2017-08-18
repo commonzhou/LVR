@@ -42,6 +42,9 @@
     <ClInclude Include="tlv_box.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="catch.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp">
@@ -70,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="tlv_box.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="catch.cpp">
+      <Filter>头文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

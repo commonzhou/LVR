@@ -80,6 +80,7 @@
   <ItemGroup>
     <ClInclude Include="AVFrameManager.h" />
     <ClInclude Include="AVPacketManager.h" />
+    <ClInclude Include="catch.hpp" />
     <ClInclude Include="MessageManager.h" />
     <ClInclude Include="prefix.h" />
     <ClInclude Include="RateControl.h" />
@@ -91,6 +92,7 @@
   <ItemGroup>
     <ClCompile Include="AVFrameManager.cpp" />
     <ClCompile Include="AVPacketManager.cpp" />
+    <ClCompile Include="catch.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageManager.cpp" />
     <ClCompile Include="RateControl.cpp" />
