@@ -8,14 +8,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <process.h>
-#include <string.h>
+#include <string>
 #pragma comment(lib,"ws2_32.lib")
+
+
+
 
 #ifdef DEBUG
 #define debug_print(fmt, ...) \
     do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
     __LINE__, __func__, __VA_ARGS__); } while (0)
 #endif
+
+
+
+#define SOCKETBUFFERSIZE 4096
 
 enum MEDIAType {
     MEDIA_AUDIO = 1,
@@ -110,6 +117,13 @@ struct InitPayload {
     UINT8 encNum;
     ParamNode *paramList;
 };
+
+struct FlexibleInitPayload {
+    UINT8 encNum;
+    char paramLists[0];
+};
+
+
 
 struct TLV {
     UINT8 type;

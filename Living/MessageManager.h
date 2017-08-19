@@ -1,4 +1,4 @@
-ï»¿#ifndef MESSAGEMANAGER_H
+#ifndef MESSAGEMANAGER_H
 #define MESSAGEMANAGER_H
 #include "prefix.h"
 
@@ -13,6 +13,7 @@ struct MessageNode {
     ~MessageNode() {
         free(CString);        
         CString = NULL;
+        next = NULL;
     }
 };
 
@@ -44,9 +45,9 @@ struct subMessageList {
 
 struct MessageList {
     int streamID;
-    struct subMessageList *pSRCL; // Ã‚Ã«Â¿Ã˜Â·Â´Ã€Â¡ÃÃ…ÃÂ¢ÃÂ´Â±Ã­
-    struct subMessageList *pRRCL; // Ã‚Ã«Â¿Ã˜Â½Ã“ÃŠÃ•ÃÃ…ÃÂ¢ÃÂ´Â±Ã­
-    struct subMessageList *pRCL; // Â±Ã Ã‚Ã«ÃÃ…ÃÂ¢Â½Ã¸Â¶ÃˆÃÃÂ±Ã­
+    struct subMessageList *pSRCL; // Âë¿Ø·´À¡ÐÅÏ¢Á´±í
+    struct subMessageList *pRRCL; // Âë¿Ø½ÓÊÕÐÅÏ¢Á´±í
+    struct subMessageList *pRCL; // ±àÂëÐÅÏ¢½ø¶ÈÁÐ±í
     struct MessageList *next;
 
     MessageList():streamID(0) {
@@ -67,20 +68,31 @@ struct MessageList {
 
 
 struct MessageManager {
-    int StreamNum; // ÂµÂ±Ã‡Â°Â½ÃšÂµÃ£Ã’ÂªÂ±Ã Ã‚Ã«ÂµÃ„ÃŠÃ½ÃÂ¿, tile+Ã’Ã´Ã†Âµ+ÃˆÂ«ÃÂ¼
-    struct MessageList *pVHead; // ÃƒÂ¿Â¸Ã¶encoderÂ¶Ã”Ã“Â¦Ã’Â»Â¸Ã¶list
+    int StreamNum; // µ±Ç°½ÚµãÒª±àÂëµÄÊýÁ¿, tile+ÒôÆµ+È«Í¼
+    struct MessageList *pVHead; // Ã¿¸öencoder¶ÔÓ¦Ò»¸ölist
     struct MessageList *pVTail;
 
     MessageManager():StreamNum(0) {
         pVHead = new MessageList();
-        pVTail = new MessageList();
+        pVTail = NULL;       
     }
 
     ~MessageManager() {
-        delete pVHead;
-        delete pVTail;
-        pVHead = NULL;
-        pVTail = NULL;
+        MessageList *node = pVHead;
+        MessageList *ptr = node;
+        while(node != NULL) {
+            ptr = node->next;
+            delete(node);
+            node = ptr;
+        }
+        if (pVHead != NULL) {
+            delete pVHead;
+            pVHead = NULL;
+        }
+        if (pVTail != NULL) {
+            delete pVTail;
+            pVTail = NULL;
+        }
     }
 };
 
@@ -113,7 +125,7 @@ int add_messageNode(subMessageList *pList,MessageNode *message,HANDLE *mutex);
 
 int update_messageNode(subMessageList *pList, HANDLE *mutex);
 
-int delete_messageManager(MessageManager *messageMag, HANDLE *mutex);
+int delete_messageManager(MessageManager*& messageMag, HANDLE *mutex);
 
 
 #endif

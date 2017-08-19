@@ -35,15 +35,15 @@ struct AVFrameList {
     MEDIAType type;
     int tileID;
     struct AVFrameNode *pVhead;
-    struct AVFrameNode *ptail;
+    struct AVFrameNode *pTail;
     struct AVFrameNode *present; 
     struct AVFrameList *next;
     AVFrameList():tileID(0) {
         type = MEDIA_NONE;
         pVhead = new AVFrameNode();
-        ptail = pVhead;
+        pTail = pVhead;
         present = pVhead;
-        ptail->next = NULL;
+        pTail->next = NULL;
         next = NULL;
     }
     ~AVFrameList() {
@@ -55,7 +55,7 @@ struct AVFrameList {
             node = ptr;
         }
         pVhead = NULL;
-        ptail = NULL;
+        pTail = NULL;
         present = NULL;
     }
 };
@@ -101,15 +101,15 @@ struct AVFrameManager {
   }
 };
 
-int create_AVFrameManager(AVFrameManager *AVFrameMag,int subpicNum);
+int create_AVFrameManager(AVFrameManager*& AVFrameMag, int subpicNum);
 
-int create_AVFrameNode(AVFrameNode *pNode);
+int create_AVFrameNode(AVFrameNode*& pNode);
 
-int get_AVFrameNode(AVFrameNode *pNode,AVFrameList *pList);
+int get_AVFrameNode(AVFrameNode*& pNode, AVFrameList *pList);
 
 int add_AVFrameNode(AVFrameList *pList,AVFrameNode *pNode,HANDLE *mutex);
 
 int update_AVFrameList(AVFrameList *pList,UINT8 used_mask,HANDLE *mutex);
 
-int delete_AVFrameManager(AVFrameManager *AVFrameMag,HANDLE *mutex);
+int delete_AVFrameManager(AVFrameManager*& AVFrameMag, HANDLE *mutex);
 #endif

@@ -1,4 +1,7 @@
 #include "MessageManager.h"
+#include "catch.hpp"
+
+
 //************************************
 // Method:    创建messageManager结构体，创建结构体中的所有MessageList，以及MessageList下的SendRCMessageList, RecRCMessageList, SpeedMessageList
 // FullName:  create_messageManager
@@ -8,7 +11,7 @@
 // Parameter: messageManager * messageMag 创建后的消息管理链表指针
 // Parameter: int StreamNum 当前节点要编码的数量, tile+音频+全图
 //************************************
-int create_messageManager( MessageManager *messageMag,int StreamNum )
+int create_messageManager(MessageManager*& messageMag, int StreamNum)
 {
     messageMag = new MessageManager();
     if(messageMag == NULL) {
@@ -27,7 +30,7 @@ int create_messageManager( MessageManager *messageMag,int StreamNum )
 // Qualifier:
 // Parameter: MessageNode * pNode
 //************************************
-int create_messageNode( MessageNode *pNode )
+int create_messageNode(MessageNode*& pNode)
 {
     pNode = new MessageNode();
     if(pNode == NULL) {
@@ -46,12 +49,12 @@ int create_messageNode( MessageNode *pNode )
 // Parameter: MessageNode * pNode 获得的Message节点
 // Parameter: subMessageList * pList 寻找节点的链表
 //************************************
-int get_messageNode( MessageNode *pNode,subMessageList *pList )
+int get_messageNode(MessageNode*& pNode, subMessageList *pList)
 {
     if(pList == NULL) {
         return -1;
     }
-    pNode = pList->present;
+    pNode = pList->pHead;
     if(pNode == NULL) {
         return -1;
     } else {
@@ -75,8 +78,17 @@ int add_messageNode( subMessageList *pList,MessageNode *message,HANDLE *mutex )
     if(pList == NULL) {
         return -1;
     }
-    pList->pTail = message;
-    message->next = NULL;
+    if(pList->pHead == NULL) {
+        pList->pHead = message;
+        pList->present = message;
+        pList->pTail = message;
+        pList->pTail->next = NULL;
+    } else {
+        pList->pTail->next = message;
+        pList->pTail = message;
+        pList->pTail->next = NULL;
+        pList->present = message;
+    }
     ReleaseMutex(mutex);
     return 0;
 }
@@ -122,7 +134,7 @@ int update_messageNode( subMessageList *pList, HANDLE *mutex )
 // Parameter: messageManager * messageMag 待销毁的链表指针
 // Parameter: HANDLE * mutex 互斥锁，删除链表时，该链表不被其它线程使用
 //************************************
-int delete_messageManager( MessageManager *messageMag, HANDLE *mutex )
+int delete_messageManager(MessageManager*& messageMag, HANDLE *mutex)
 {
     WaitForSingleObject(mutex,INFINITE);
     if(messageMag == NULL) {
@@ -133,3 +145,35 @@ int delete_messageManager( MessageManager *messageMag, HANDLE *mutex )
     ReleaseMutex(mutex);
     return 0;
 }
+
+//
+//TEST_CASE("MessageManager", "[MessageManager]") {
+//    MessageManager *manager = NULL;
+//    SECTION("create messageManager") {
+//        create_messageManager(manager, 0);
+//        REQUIRE(manager != 0);
+//        REQUIRE(manager->StreamNum == 0);
+//    }
+//    SECTION("create messageNode") {
+//        MessageNode *node = NULL;
+//        create_messageNode(node);
+//        REQUIRE(node != NULL);
+//    }
+//    SECTION("add messageNode") {
+//        create_messageManager(manager, 0);
+//        MessageNode *node = NULL;
+//        create_messageNode(node);
+//        add_messageNode(manager->pVHead->pRCL, node, NULL);
+//        REQUIRE(manager->pVHead != NULL);
+//        REQUIRE(manager->pVHead->pRCL != NULL);
+//        REQUIRE(manager->pVHead->pRCL->pTail == node);
+//    }
+//    SECTION("delete messageManager") {
+//        create_messageManager(manager, 0);
+//        MessageNode *node = NULL;
+//        create_messageNode(node);
+//        add_messageNode(manager->pVHead->pRCL, node, NULL);
+//        delete_messageManager(manager, NULL);
+//        REQUIRE(manager == NULL);
+//    }
+//}
