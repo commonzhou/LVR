@@ -1,4 +1,4 @@
-#ifndef MESSAGEMANAGER_H
+ï»¿#ifndef MESSAGEMANAGER_H
 #define MESSAGEMANAGER_H
 #include "prefix.h"
 
@@ -6,17 +6,12 @@ struct MessageNode {
     INT8 *CString;
     int size;
     int used_flag;
-    struct TLV *message;
-    struct TranscoderParam *transcoderParam;
     struct MessageNode *next;
     MessageNode(): CString(NULL),size(0),used_flag(0),next(NULL){
-        message = new TLV();
-        transcoderParam = new TranscoderParam();
+       
     }
     ~MessageNode() {
-        free(CString);
-        delete message;
-        message = NULL;
+        free(CString);        
         CString = NULL;
     }
 };
@@ -26,11 +21,11 @@ struct subMessageList {
     struct MessageNode *pTail;
     struct MessageNode *present;
     struct subMessageList *next;
-    subMessageList() {
-        pHead = new MessageNode();
+    subMessageList():pHead(NULL),pTail(NULL),present(NULL),next(NULL) {
+        /*pHead = new MessageNode();
         pTail = new MessageNode();
         present = new MessageNode();
-        next = NULL;
+        next = NULL;*/
     }
     ~subMessageList() {
         MessageNode *node = pHead;
@@ -49,9 +44,9 @@ struct subMessageList {
 
 struct MessageList {
     int streamID;
-    struct subMessageList *pSRCL; // Âë¿Ø·´À¡ĞÅÏ¢Á´±í
-    struct subMessageList *pRRCL; // Âë¿Ø½ÓÊÕĞÅÏ¢Á´±í
-    struct subMessageList *pRCL; // ±àÂëĞÅÏ¢½ø¶ÈÁĞ±í
+    struct subMessageList *pSRCL; // Ã‚Ã«Â¿Ã˜Â·Â´Ã€Â¡ÃÃ…ÃÂ¢ÃÂ´Â±Ã­
+    struct subMessageList *pRRCL; // Ã‚Ã«Â¿Ã˜Â½Ã“ÃŠÃ•ÃÃ…ÃÂ¢ÃÂ´Â±Ã­
+    struct subMessageList *pRCL; // Â±Ã Ã‚Ã«ÃÃ…ÃÂ¢Â½Ã¸Â¶ÃˆÃÃÂ±Ã­
     struct MessageList *next;
 
     MessageList():streamID(0) {
@@ -72,8 +67,8 @@ struct MessageList {
 
 
 struct MessageManager {
-    int StreamNum; // µ±Ç°½ÚµãÒª±àÂëµÄÊıÁ¿, tile+ÒôÆµ+È«Í¼
-    struct MessageList *pVHead; // Ã¿¸ötranscoder¶ÔÓ¦Ò»¸ölist
+    int StreamNum; // ÂµÂ±Ã‡Â°Â½ÃšÂµÃ£Ã’ÂªÂ±Ã Ã‚Ã«ÂµÃ„ÃŠÃ½ÃÂ¿, tile+Ã’Ã´Ã†Âµ+ÃˆÂ«ÃÂ¼
+    struct MessageList *pVHead; // ÃƒÂ¿Â¸Ã¶encoderÂ¶Ã”Ã“Â¦Ã’Â»Â¸Ã¶list
     struct MessageList *pVTail;
 
     MessageManager():StreamNum(0) {
@@ -108,11 +103,11 @@ struct InfoNode {
 
 
 
-int create_messageManager(MessageManager *messageMag,int StreamNum);
+int create_messageManager(MessageManager*& messageMag, int StreamNum);
 
-int create_messageNode(MessageNode *pNode);
+int create_messageNode(MessageNode*& pNode);
 
-int get_messageNode(MessageNode *pNode,subMessageList *pList);
+int get_messageNode(MessageNode*& pNode, subMessageList *pList);
 
 int add_messageNode(subMessageList *pList,MessageNode *message,HANDLE *mutex);
 
