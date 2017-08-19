@@ -1,4 +1,4 @@
-ï»¿#include "TranscoderManager.h"
+#include "TranscoderManager.h"
 #include "MessageManager.h"
 #define LENGTH_OF_LISTEN_QUEUE     20
 
@@ -10,14 +10,12 @@ unsigned int _stdcall handleMessage(void *params) {
     MessageNode *present=pRCL->present;
     int size=present->size;
     INT8 *CString=present->CString;
-    printf("è¿›å…¥å­çº¿ç¨‹\n");
+    printf("½øÈë×ÓÏß³Ì\n");
     int readSize;
     char sendBuffer[2000];
     memset(sendBuffer,0,2000);
     memcpy(sendBuffer,CString,size);
     sendBuffer[size]= '\0';                                               //strlen
-  
-
     char recvBuffer[2000]={0};
     while ((readSize = recv(*socketID, recvBuffer, 2000, 0)) > 0) {
         recvBuffer[readSize] = '\0';
@@ -36,15 +34,15 @@ unsigned int _stdcall handleMessage(void *params) {
 }
 
 //************************************
-// Method: åˆ©ç”¨ç«¯å£ä¿¡æ¯ï¼Œåˆå§‹åŒ–transcoderManagerçº¿ç¨‹ï¼Œçº¿ç¨‹suspend
+// Method: ÀûÓÃ¶Ë¿ÚÐÅÏ¢£¬³õÊ¼»¯transcoderManagerÏß³Ì£¬Ïß³Ìsuspend
 // FullName: init_transcoderManager
 // Access: public
-// Returns: int -1å¤±è´¥ 0æˆåŠŸ
+// Returns: int -1Ê§°Ü 0³É¹¦
 // Qualifier:
 // Parameter: pthread_t * transcoderManager
-// Parameter: SOCKET * socketID ä¸»æŽ§PCå’Œè½¬ç èŠ‚ç‚¹é—´TCP/IPè¿žæŽ¥é“¾è·¯
-// Parameter: MessageList * pList éœ€è¦æ›´æ–°å…¶ä¸­çš„ç æŽ§åé¦ˆä¿¡æ¯å’Œç¼–ç ä¿¡æ¯è¿›åº¦åˆ—è¡¨
-// Parameter: void * private çº¿ç¨‹ç§æœ‰ç©ºé—´
+// Parameter: SOCKET * socketID Ö÷¿ØPCºÍ×ªÂë½Úµã¼äTCP/IPÁ¬½ÓÁ´Â·
+// Parameter: MessageList * pList ÐèÒª¸üÐÂÆäÖÐµÄÂë¿Ø·´À¡ÐÅÏ¢ºÍ±àÂëÐÅÏ¢½ø¶ÈÁÐ±í
+// Parameter: void * private Ïß³ÌË½ÓÐ¿Õ¼ä
 //************************************
 
 int init_transcoderManager( HANDLE *transcoderManager, SOCKET *socketID,MessageList *pList,void *privateSpace ) {
@@ -103,15 +101,15 @@ int init_transcoderManager( HANDLE *transcoderManager, SOCKET *socketID,MessageL
 
 
 //************************************
-// Method: çº¿ç¨‹ä»ŽæŒ‚èµ·çŠ¶æ€å”¤é†’
+// Method: Ïß³Ì´Ó¹ÒÆð×´Ì¬»½ÐÑ
 // FullName: activate_transcoderManager
 // Access: public
-// Returns: int -1å¤±è´¥ 0æˆåŠŸ
+// Returns: int -1Ê§°Ü 0³É¹¦
 // Qualifier:
-// Parameter: pthread_t * transcoderManager çº¿ç¨‹NULLæŒ‡é’ˆ
-// Parameter: SOCKET * socketID ä¸»æŽ§PCå’Œè½¬ç èŠ‚ç‚¹é—´TCP/IPè¿žæŽ¥é“¾è·¯
-// Parameter: MessageList * pList éœ€è¦æ›´æ–°å…¶ä¸­çš„ç æŽ§åé¦ˆä¿¡æ¯å’Œç¼–ç ä¿¡æ¯è¿›åº¦åˆ—è¡¨
-// Parameter: void * private çº¿ç¨‹ç§æœ‰ç©ºé—´
+// Parameter: pthread_t * transcoderManager Ïß³ÌNULLÖ¸Õë
+// Parameter: SOCKET * socketID Ö÷¿ØPCºÍ×ªÂë½Úµã¼äTCP/IPÁ¬½ÓÁ´Â·
+// Parameter: MessageList * pList ÐèÒª¸üÐÂÆäÖÐµÄÂë¿Ø·´À¡ÐÅÏ¢ºÍ±àÂëÐÅÏ¢½ø¶ÈÁÐ±í
+// Parameter: void * private Ïß³ÌË½ÓÐ¿Õ¼ä
 //************************************
 
 int activate_transcoderManager(HANDLE *transcoderManager, SOCKET *socketID, MessageList *pList, void *privateSpace) {
@@ -124,12 +122,12 @@ int activate_transcoderManager(HANDLE *transcoderManager, SOCKET *socketID, Mess
 
 
 //************************************
-// Method: çº¿ç¨‹é”€æ¯
+// Method: Ïß³ÌÏú»Ù
 // FullName: destroy_transcoderManager
 // Access: public
-// Returns: int -1å¤±è´¥ 0æˆåŠŸ
+// Returns: int -1Ê§°Ü 0³É¹¦
 // Qualifier:
-// Parameter: pthread_t * transcoderManager çº¿ç¨‹å¥æŸ„
+// Parameter: pthread_t * transcoderManager Ïß³Ì¾ä±ú
 // Parameter: void * private
 //************************************
 
@@ -139,49 +137,5 @@ int destroy_transcoderManager( HANDLE *transcoderManager,void *privateSpace ) {
     };
     return 0;
 }
-int main(int argc , char *argv[]){
-    WSADATA wsa;
-    HANDLE transcoderManager=NULL;
-    SOCKET socketID=NULL;
 
-    MessageManager *messageManager = NULL;
-    create_messageManager(messageManager, 0);
-    MessageNode *node = NULL;
-    create_messageNode(node);
-    node->used_flag = 0;
-    node->next = NULL;
-    char *value = "hello";
-    node->size = strlen(value)+1;
-    node->CString = (INT8 *)malloc(sizeof(INT8)*(node->size));
-    memcpy(node->CString, &value, node->size);
-    add_messageNode(messageManager->pVHead->pRCL, node, NULL);
-
-    node = NULL;
-    create_messageNode(node);
-    node->used_flag = 0;
-    node->next = NULL;
-
-    char val[] = "world";
-    node->size =  sizeof(val);
-    node->CString = (INT8 *)malloc(sizeof(INT8)*node->size);
-    memcpy(node->CString, &val, strlen(val)+1);
-    add_messageNode(messageManager->pVHead->pRCL, node, NULL);
-    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
-    {
-        printf("Failed. Error Code : %d",WSAGetLastError());
-        return 1;
-    }
-    //for(int i=0;i<size;i++){
-    //  printf("%d\n",buffer[i]);
-    //}
-
-    init_transcoderManager( &transcoderManager, &socketID,messageManager->pVHead, NULL);
-    //WaitForSingleObject(transcoderManager, 1000);
-    //
-   /* while(flags){
-           destroy_transcoderManager( &transcoderManager,NULL );
-    }*/
-    
-    return 0;
-}
 
