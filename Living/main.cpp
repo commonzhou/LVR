@@ -8,6 +8,7 @@ int portID = 7747;
 #define transcoderNum 2
 
 int main() {
+
     HANDLE receiversHandle[handleNum];
     HANDLE sendersHandle[handleNum];
     SOCKET sockets[handleNum] = {0};
@@ -49,7 +50,6 @@ int main() {
     for (int i = 0; i < handleNum;i++) {
         destroy_send(&sendersHandle[i], NULL, &sockets[i]);
         destroy_receive(&receiversHandle[i], NULL);
-
     }
 
     return 0;

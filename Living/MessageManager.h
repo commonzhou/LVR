@@ -8,7 +8,7 @@ struct MessageNode {
     int used_flag;
     struct MessageNode *next;
     MessageNode(): CString(NULL),size(0),used_flag(0),next(NULL){
-        CString = (INT8 *)malloc(sizeof(INT8));
+        
     }
     ~MessageNode() {
         free(CString);        

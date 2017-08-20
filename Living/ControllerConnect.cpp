@@ -4,6 +4,8 @@ static struct sockaddr_in server_addr;
 #define bufferSize 4096
 static HANDLE hMutex;
 
+// TODO: hMutex现在没有合适的销毁和创建机制
+
 unsigned int _stdcall sendFakeMessage(void *params);
 
 unsigned int _stdcall sendRealMessage(void *params);

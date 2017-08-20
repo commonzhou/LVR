@@ -78,23 +78,19 @@ int add_messageNode( subMessageList *pList,MessageNode *message,HANDLE *mutex )
     if(pList == NULL) {
         return -1;
     }
-    MessageNode *node = new MessageNode();
-    memcpy(node->CString, message->CString, sizeof(INT8));
-    node->size = message->size;
-    node->used_flag = message->used_flag;
-
+    
     if(pList->pHead == pList->pTail) {
-        pList->pHead->next = node;
-        pList->pTail = node;
+        pList->pHead->next = message;
+        pList->pTail = message;
         pList->pTail->next = NULL;
-        pList->present = node;
+        pList->present = message;
     } else {
-        pList->pTail->next = node;
-        pList->pTail = node;
+        pList->pTail->next = message;
+        pList->pTail = message;
         pList->pTail->next = NULL;
-        pList->present = node;
+        pList->present = message;
     }
-    delete(message);
+    message->used_flag = 0;
     ReleaseMutex(mutex);
     return 0;
 }
@@ -115,18 +111,33 @@ int update_messageNode( subMessageList *pList, HANDLE *mutex )
         return -1;
     }
     // 让present指向被删除掉的节点的下一个节点
-    // TODO: present应该指向现在正在处理的那个节点
+    
     MessageNode *presentNode = NULL;
     get_messageNode(presentNode,pList);
-    if(presentNode->used_flag) {
-        MessageNode *node = pList->pHead;
-        while (node->next != presentNode) {
-            node = node->next;
+
+    // 删掉从头到present的部分
+    // 更新指针之间的指向关系
+    // 目前present指向的是pVTail
+    if(presentNode != NULL) {
+        MessageNode *node = pList->pHead->next;
+        MessageNode *afternode = NULL;
+        MessageNode *beforenode = pList->pHead;
+
+        // 遍历从pHead到present的节点，
+        while (node != NULL && node != presentNode) {
+            afternode = node->next;
+            if(node->used_flag) {
+                delete (node);
+                node = afternode;
+                beforenode->next = afternode;
+            } else {
+                beforenode = node;
+                node = afternode;
+            }
         }
-        node->next = presentNode->next;
-        pList->present = presentNode->next;
+    } else {
+        printf("messageNode is NULL, %s\n", __FUNCTION__);
     }
-    delete presentNode;
     presentNode = NULL;
     ReleaseMutex(mutex);
     return 0;

@@ -15,14 +15,8 @@ struct AVFrameNode {
     UINT8 used_mask;
     struct AVFrameNode *next;
 
-    AVFrameNode():width(0),height(0),used_flag(0),used_mask(0){
-        Yframe = (UINT8 *)malloc(sizeof(UINT8));
-        Uframe = (UINT8 *)malloc(sizeof(UINT8));
-        Vframe = (UINT8 *)malloc(sizeof(UINT8));
-        memset(Yframe, sizeof(UINT8), 0);
-        memset(Vframe, sizeof(UINT8), 0);
-        memset(Uframe, sizeof(UINT8), 0);
-        next = NULL;
+    AVFrameNode():Yframe(NULL),Uframe(NULL),Vframe(NULL),width(0),height(0),used_flag(0),used_mask(0),next(NULL) {
+    
     }
     ~AVFrameNode() {
         free(Yframe);

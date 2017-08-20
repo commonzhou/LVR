@@ -75,30 +75,18 @@ int add_AVFrameNode(AVFrameList *pList,AVFrameNode *pNode,HANDLE *mutex) {
     if(pList == NULL) {
         return -1;
     }
-
-    // TODO: 将pNode中的各个数据也要拷贝进来
-    AVFrameNode *node = new AVFrameNode();
-    memcpy(node->Uframe, pNode->Uframe, sizeof(UINT8));
-    memcpy(node->Vframe, pNode->Vframe, sizeof(UINT8));
-    memcpy(node->Yframe, pNode->Yframe, sizeof(UINT8));
-    
-    node->height = pNode->height;
-    node->used_flag = pNode->used_flag;
-    node->width = pNode->width;
-    
     if (pList->pVhead == pList->pVTail) {
-        pList->pVhead->next = node;
-        pList->pVTail = node;
-        pList->present = node;
+        pList->pVhead->next = pNode;
+        pList->pVTail = pNode;
+        pList->present = pNode;
         pNode->next = NULL;
     } else {
-        pList->pVTail->next = node;
-        pList->pVTail = node;
-        pList->present = node;
+        pList->pVTail->next = pNode;
+        pList->pVTail = pNode;
+        pList->present = pNode;
         pList->pVTail->next = NULL;
     }
-    node->used_flag = 0;
-    delete pNode;
+    pNode->used_flag = 0;
     ReleaseMutex(mutex);
     return 0;
 }

@@ -29,6 +29,7 @@ int create_AVPacketManager(AVPacketManager*& AVPacketMag, int StreamNum)
 //************************************
 int create_packetNode(PacketNode*& pNode)
 {
+    // 在这里进行创建，在update_AVPacketList()里进行删除，所以不需要显示删除
     pNode = new PacketNode();
     if(pNode == NULL) {
         return -1;
@@ -75,26 +76,19 @@ int add_packetNode( AVPktList *pList,PacketNode *pNode,HANDLE *mutex )
     if(pList == NULL) {
         return -1;
     }
-    PacketNode *node = new PacketNode();
-    memcpy(node->bitstream, pNode->bitstream, sizeof(UINT8));
-    node->size = pNode->size;
-    node->PTS = pNode->PTS;
-    node->used_flag = pNode->PTS;
-    
+   
     if (pList->pVHead == pList->pVTail) {
-        pList->pVHead = node;
-        pList->pVTail = node;
-        pList->present = node;
+        pList->pVHead = pNode;
+        pList->pVTail = pNode;
+        pList->present = pNode;
         pList->pVTail->next = NULL;
     } else {
-        pList->pVTail->next = node;
-        pList->pVTail = node;
-        pList->present = node;
+        pList->pVTail->next = pNode;
+        pList->pVTail = pNode;
+        pList->present = pNode;
         pList->pVTail->next = NULL;
     }
-    node->used_flag = 0;
-
-    delete pNode;
+    pNode->used_flag = 0;
     ReleaseMutex(mutex);
     return 0;
 }

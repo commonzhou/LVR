@@ -9,9 +9,8 @@ struct PacketNode {
     UINT64 PTS;
     UINT8 used_flag;
     struct PacketNode *next;
-    PacketNode():size(0),PTS(0),used_flag(0),next(NULL) {
-        bitstream = (UINT8 *)malloc(sizeof(UINT8));
-        memset(bitstream, 0, sizeof(UINT8));
+    PacketNode():bitstream(NULL),size(0),PTS(0),used_flag(0),next(NULL) {
+       
     }
     ~PacketNode() {
         free(bitstream);
