@@ -2,6 +2,7 @@
 #include "ControllerConnect.h"
 #include "MessageManager.h"
 char *IP_SERVER = "192.168.4.97";
+//char *IP_SERVER = "127.0.0.1";
 int portID = 7747;
 #define handleNum 2
 #define transcoderNum 2
@@ -36,9 +37,9 @@ int main() {
     add_messageNode(messageManager->pVHead->pRCL, node, NULL);
 
     for (int i = 0; i < handleNum;i++) {
-        create_socket(IP_SERVER, portID, NULL,&sockets[i]);      
-        activate_receive(&receiversHandle[i], NULL, &sockets[i], messageManager->pVHead);
+        create_socket(IP_SERVER, portID, NULL,&sockets[i]);   
         activate_send(&sendersHandle[i], NULL, &sockets[i], messageManager->pVHead);
+        activate_receive(&receiversHandle[i], NULL, &sockets[i], messageManager->pVHead);        
     }
 
 
@@ -46,8 +47,9 @@ int main() {
     WaitForMultipleObjects(handleNum, receiversHandle, true, 200);
 
     for (int i = 0; i < handleNum;i++) {
-        destroy_receive(&receiversHandle[i], NULL);
         destroy_send(&sendersHandle[i], NULL, &sockets[i]);
+        destroy_receive(&receiversHandle[i], NULL);
+
     }
 
     return 0;

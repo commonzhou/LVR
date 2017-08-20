@@ -54,7 +54,7 @@ int get_messageNode(MessageNode*& pNode, subMessageList *pList)
     if(pList == NULL) {
         return -1;
     }
-    pNode = pList->pHead;
+    pNode = pList->present;
     if(pNode == NULL) {
         return -1;
     } else {
@@ -78,17 +78,23 @@ int add_messageNode( subMessageList *pList,MessageNode *message,HANDLE *mutex )
     if(pList == NULL) {
         return -1;
     }
-    if(pList->pHead == NULL) {
-        pList->pHead = message;
-        pList->present = message;
-        pList->pTail = message;
+    MessageNode *node = new MessageNode();
+    memcpy(node->CString, message->CString, sizeof(INT8));
+    node->size = message->size;
+    node->used_flag = message->used_flag;
+
+    if(pList->pHead == pList->pTail) {
+        pList->pHead->next = node;
+        pList->pTail = node;
         pList->pTail->next = NULL;
+        pList->present = node;
     } else {
-        pList->pTail->next = message;
-        pList->pTail = message;
+        pList->pTail->next = node;
+        pList->pTail = node;
         pList->pTail->next = NULL;
-        pList->present = message;
+        pList->present = node;
     }
+    delete(message);
     ReleaseMutex(mutex);
     return 0;
 }
@@ -109,6 +115,7 @@ int update_messageNode( subMessageList *pList, HANDLE *mutex )
         return -1;
     }
     // 让present指向被删除掉的节点的下一个节点
+    // TODO: present应该指向现在正在处理的那个节点
     MessageNode *presentNode = NULL;
     get_messageNode(presentNode,pList);
     if(presentNode->used_flag) {
@@ -137,43 +144,38 @@ int update_messageNode( subMessageList *pList, HANDLE *mutex )
 int delete_messageManager(MessageManager*& messageMag, HANDLE *mutex)
 {
     WaitForSingleObject(mutex,INFINITE);
-    if(messageMag == NULL) {
-        return -1;
-    }
     delete messageMag;
     messageMag = NULL;
     ReleaseMutex(mutex);
     return 0;
 }
 
-//
-//TEST_CASE("MessageManager", "[MessageManager]") {
-//    MessageManager *manager = NULL;
-//    SECTION("create messageManager") {
-//        create_messageManager(manager, 0);
-//        REQUIRE(manager != 0);
-//        REQUIRE(manager->StreamNum == 0);
-//    }
-//    SECTION("create messageNode") {
-//        MessageNode *node = NULL;
-//        create_messageNode(node);
-//        REQUIRE(node != NULL);
-//    }
-//    SECTION("add messageNode") {
-//        create_messageManager(manager, 0);
-//        MessageNode *node = NULL;
-//        create_messageNode(node);
-//        add_messageNode(manager->pVHead->pRCL, node, NULL);
-//        REQUIRE(manager->pVHead != NULL);
-//        REQUIRE(manager->pVHead->pRCL != NULL);
-//        REQUIRE(manager->pVHead->pRCL->pTail == node);
-//    }
-//    SECTION("delete messageManager") {
-//        create_messageManager(manager, 0);
-//        MessageNode *node = NULL;
-//        create_messageNode(node);
-//        add_messageNode(manager->pVHead->pRCL, node, NULL);
-//        delete_messageManager(manager, NULL);
-//        REQUIRE(manager == NULL);
-//    }
-//}
+TEST_CASE("MessageManager", "[MessageManager]") {
+    MessageManager *manager = NULL;
+    SECTION("create messageManager") {
+        create_messageManager(manager, 0);
+        REQUIRE(manager != 0);
+        REQUIRE(manager->StreamNum == 0);
+    }
+    SECTION("create messageNode") {
+        MessageNode *node = NULL;
+        create_messageNode(node);
+        REQUIRE(node != NULL);
+    }
+    SECTION("add messageNode") {
+        create_messageManager(manager, 0);
+        MessageNode *node = NULL;
+        create_messageNode(node);
+        add_messageNode(manager->pVHead->pRCL, node, NULL);
+        REQUIRE(manager->pVHead != NULL);
+        REQUIRE(manager->pVHead->pRCL != NULL);
+    }
+    SECTION("delete messageManager") {
+        create_messageManager(manager, 0);
+        MessageNode *node = NULL;
+        create_messageNode(node);
+        add_messageNode(manager->pVHead->pRCL, node, NULL);
+        delete_messageManager(manager, NULL);
+        REQUIRE(manager == NULL);
+    }
+}

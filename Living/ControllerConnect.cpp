@@ -65,16 +65,11 @@ int create_socket(char *IP_SERVER, int portID, void *privateSpace, SOCKET *socke
 int activate_receive(HANDLE *receiver, void *privateSpace, SOCKET *socket_port, MessageList * pList) {
     printf("socket id:%d, %s\n", *socket_port, __FUNCTION__);
     // 这里的activate_receive应该是每个线程单独一个吧
-    InfoNode *node = new InfoNode();
-    
-    if(pList != NULL) {
-        node->messageList = pList;
-    }
-    if (socket_port != NULL) {
-        node->socketID = socket_port;
-    }
+    InfoNode inode;
+    inode.messageList = pList;
+    inode.socketID = socket_port;
 
-    *receiver = (HANDLE)_beginthreadex(NULL, 0, receiveFakeMessage, (void *)node, 0, NULL);
+    *receiver = (HANDLE)_beginthreadex(NULL, 0, receiveRealMessage, (void *)&inode, 0, NULL);
     return 0;
 }
 
@@ -105,11 +100,12 @@ int destroy_receive(HANDLE *receiver, void *privateSpace) {
 //************************************
 int activate_send(HANDLE *send, void *privateSpace, SOCKET *socket_port, MessageList *pList) {
     printf("socket id:%d, %s\n", *socket_port, __FUNCTION__);
-    InfoNode *node = new InfoNode();
-    node->messageList = pList;
-    node->socketID = socket_port;
+    InfoNode inode;
+    inode.messageList = pList;
+    inode.socketID = socket_port;
 
-    *send = (HANDLE)_beginthreadex(NULL, 0, sendFakeMessage, (void *)node, 0, NULL);
+    *send = (HANDLE)_beginthreadex(NULL, 0, sendRealMessage, (void *)&inode, 0, NULL);
+
     return 0;
 }
 
@@ -125,8 +121,8 @@ int activate_send(HANDLE *send, void *privateSpace, SOCKET *socket_port, Message
 //************************************
 int destroy_send(HANDLE *send, void *privateSpace, SOCKET *socket_port) {
     closesocket(*socket_port);
-    CloseHandle(hMutex);
     CloseHandle(*send);
+    CloseHandle(hMutex);
     WSACleanup();
     return 0;
 }
@@ -136,13 +132,10 @@ unsigned int _stdcall sendFakeMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = NULL;
     SOCKET *socketID = NULL;
-    if (node->messageList != NULL) {
-        list = node->messageList;
-    }
-    if (node->socketID != NULL) {
-        socketID = node->socketID;
-    }
-    for (int i = 0; i < 5; i++) {
+    list = node->messageList;
+    socketID = node->socketID;
+
+    for (int i = 0; i < 1; i++) {
         char *message = "Tamarous\n";
         if (send(*socketID, message, strlen(message), 0) == -1) {
             printf("Error sending: %s\n", __FUNCTION__);
@@ -150,6 +143,7 @@ unsigned int _stdcall sendFakeMessage(void *params) {
         }
         printf("socketID:%d\t,index:%d:\tSend successfully.%s\n", *socketID, i, message);
     }
+    
     return 0;
 }
 
@@ -167,6 +161,7 @@ unsigned int _stdcall sendRealMessage(void *params) {
         }
         printf("%s Send %s successfully.\n", __FUNCTION__, (char *)messageNode->CString);
         messageNode->used_flag = 1;
+        update_messageNode(subMessageList, &hMutex);
     }
     ReleaseMutex(hMutex);
     return 0;
@@ -178,14 +173,14 @@ unsigned int _stdcall receiveFakeMessage(void *params) {
     MessageList *list = node->messageList;
     SOCKET *socketID = node->socketID;
 
-
     int readSize = 0;
-    char buffer[bufferSize] = { 0 };
-    while ((readSize = recv(*socketID, buffer, bufferSize, 0)) > 0) {
+    char buffer[SOCKETBUFFERSIZE] = { 0 };
+    while ((readSize = recv(*socketID, buffer, SOCKETBUFFERSIZE, 0)) > 0) {
         buffer[readSize] = '\0';
         puts(buffer);
-        memset(buffer, 0, bufferSize);
+        memset(buffer, 0, SOCKETBUFFERSIZE);
     }
+    
     return 0;
 }
 
@@ -196,23 +191,24 @@ unsigned int _stdcall receiveRealMessage(void *params) {
     MessageNode *messageNode = NULL;
     char buffer[SOCKETBUFFERSIZE] = { 0 };
     int readSize = 0;
+    UINT8 *type = (UINT8 *)malloc(sizeof(UINT8));
+    UINT32 *length = (UINT32 *)malloc(sizeof(UINT32));
     while ((readSize = recv(*socketID, buffer, SOCKETBUFFERSIZE, 0)) > 0) {
 
         buffer[readSize] = '\0';
         puts(buffer);
 
         // 解析出type信息
-        UINT8 *type = (UINT8 *)malloc(sizeof(UINT8));
         memcpy(type, buffer, sizeof(UINT8));
 
         // 解析出length信息
-        UINT32 *length = (UINT32 *)malloc(sizeof(UINT32));
         memcpy(length, buffer + sizeof(UINT8), sizeof(UINT32));
 
         // 根据length为node分配能够容纳下size, used_flag, MessageNode *和字符串的空间
-        // 字符串存储的是一个实际的TLV
-        messageNode = (MessageNode *)malloc(sizeof(int) + sizeof(int) + sizeof(MessageNode *) + (*length) + sizeof(UINT8) + sizeof(UINT32));
+        // 字符串存储的是一个实际的TLV, 包括三方面:type，length和payload, type的长度为sizeof(UINT8), length 长度为sizeof(UINT32), payload长度为length+表示字符串终止符号的1字节
+        messageNode = (MessageNode *)malloc(sizeof(int) + sizeof(int) + sizeof(MessageNode *) + (*length+1) + sizeof(UINT8) + sizeof(UINT32));
         memcpy(messageNode->CString, buffer + sizeof(UINT8) + sizeof(UINT32), *length);
+        messageNode->CString[*length] = '\0';
         printf("%s Recv %s successfully.\n", __FUNCTION__, (char *)messageNode->CString);
         messageNode->size = *length;
         messageNode->used_flag = 0;
@@ -224,16 +220,19 @@ unsigned int _stdcall receiveRealMessage(void *params) {
             add_messageNode(subMessageList, messageNode, &hMutex);
         }
     }
+    free(type);
+    free(length);
     ReleaseMutex(hMutex);
+    delete node;
     return 0;
 }
 
-//TEST_CASE("ControllerConnect","[ControllerConnect]") {
-//    char *IP = "127.0.0.1";
-//    int portID = 1453;
-//    SOCKET socket;
-//    SECTION("create_socket") {
-//        create_socket(IP, portID, NULL, &socket);
-//        REQUIRE(socket != INVALID_SOCKET);
-//    }
-//}
+TEST_CASE("ControllerConnect","[ControllerConnect]") {
+    char *IP = "127.0.0.1";
+    int portID = 1453;
+    SOCKET socket;
+    SECTION("create_socket") {
+        create_socket(IP, portID, NULL, &socket);
+        REQUIRE(socket != INVALID_SOCKET);
+    }
+}

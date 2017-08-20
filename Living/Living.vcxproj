@@ -81,11 +81,12 @@
     <ClInclude Include="AVFrameManager.h" />
     <ClInclude Include="AVPacketManager.h" />
     <ClInclude Include="catch.hpp" />
+    <ClInclude Include="Encode.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="MessageManager.h" />
+    <ClInclude Include="Muxer.h" />
     <ClInclude Include="prefix.h" />
     <ClInclude Include="RateControl.h" />
-    <ClInclude Include="tlv.h" />
-    <ClInclude Include="tlv_box.h" />
     <ClInclude Include="TranscoderManager.h" />
     <ClInclude Include="ControllerConnect.h" />
   </ItemGroup>
@@ -93,11 +94,12 @@
     <ClCompile Include="AVFrameManager.cpp" />
     <ClCompile Include="AVPacketManager.cpp" />
     <ClCompile Include="catch.cpp" />
+    <ClCompile Include="Encode.cpp" />
+    <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageManager.cpp" />
+    <ClCompile Include="Muxer.cpp" />
     <ClCompile Include="RateControl.cpp" />
-    <ClCompile Include="tlv.cpp" />
-    <ClCompile Include="tlv_box.cpp" />
     <ClCompile Include="TranscoderManager.cpp" />
     <ClCompile Include="ControllerConnect.cpp" />
   </ItemGroup>

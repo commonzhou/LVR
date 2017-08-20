@@ -36,13 +36,16 @@
     <ClInclude Include="ControllerConnect.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="tlv.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="tlv_box.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="catch.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Encode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Muxer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,14 +71,17 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="tlv.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="tlv_box.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="catch.cpp">
-      <Filter>头文件</Filter>
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Encode.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Muxer.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

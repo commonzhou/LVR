@@ -13,12 +13,15 @@ struct AVFrameNode {
     //这8bit的数据按照如下的格式进行安排
     //备用-备用-备用-备用-码控完成flag-全局映射完成flag-Tile划分完成flag-编码完成flag
     UINT8 used_mask;
- 
     struct AVFrameNode *next;
+
     AVFrameNode():width(0),height(0),used_flag(0),used_mask(0){
-        Yframe = NULL;
-        Uframe = NULL;
-        Vframe = NULL;
+        Yframe = (UINT8 *)malloc(sizeof(UINT8));
+        Uframe = (UINT8 *)malloc(sizeof(UINT8));
+        Vframe = (UINT8 *)malloc(sizeof(UINT8));
+        memset(Yframe, sizeof(UINT8), 0);
+        memset(Vframe, sizeof(UINT8), 0);
+        memset(Uframe, sizeof(UINT8), 0);
         next = NULL;
     }
     ~AVFrameNode() {
@@ -28,6 +31,7 @@ struct AVFrameNode {
         Yframe = NULL;
         Uframe = NULL;
         Vframe = NULL;
+        next = NULL;
     }
 };
 
@@ -35,15 +39,14 @@ struct AVFrameList {
     MEDIAType type;
     int tileID;
     struct AVFrameNode *pVhead;
-    struct AVFrameNode *pTail;
+    struct AVFrameNode *pVTail;
     struct AVFrameNode *present; 
     struct AVFrameList *next;
     AVFrameList():tileID(0) {
         type = MEDIA_NONE;
         pVhead = new AVFrameNode();
-        pTail = pVhead;
-        present = pVhead;
-        pTail->next = NULL;
+        pVTail = pVhead;
+        present = NULL;
         next = NULL;
     }
     ~AVFrameList() {
@@ -55,7 +58,7 @@ struct AVFrameList {
             node = ptr;
         }
         pVhead = NULL;
-        pTail = NULL;
+        pVTail = NULL;
         present = NULL;
     }
 };

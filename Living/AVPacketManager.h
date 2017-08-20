@@ -9,9 +9,9 @@ struct PacketNode {
     UINT64 PTS;
     UINT8 used_flag;
     struct PacketNode *next;
-    PacketNode():size(0),PTS(0),used_flag(0) {
-        bitstream = NULL;
-        next = NULL;
+    PacketNode():size(0),PTS(0),used_flag(0),next(NULL) {
+        bitstream = (UINT8 *)malloc(sizeof(UINT8));
+        memset(bitstream, 0, sizeof(UINT8));
     }
     ~PacketNode() {
         free(bitstream);
@@ -19,46 +19,46 @@ struct PacketNode {
     }
 };
 
-struct AVPacketList {
+struct AVPktList {
     MEDIAType type;
     int streamID;
     int tileID;
     struct PacketNode *pVHead;
     struct PacketNode *pVTail;
     struct PacketNode *present;
-    struct AVPacketList *next;
-    AVPacketList():streamID(0),tileID(0) {
+    struct AVPktList *next;
+    AVPktList():streamID(0),tileID(0) {
         type = MEDIA_NONE;
         pVHead = new PacketNode();
-        pVTail = new PacketNode();
-        present = new PacketNode();
+        pVTail = pVHead;
+        present = NULL;
         next = NULL;
     }
-    ~AVPacketList() {
+    ~AVPktList() {
         PacketNode *node = pVHead;
         PacketNode *ptr = node;
         while(node != NULL) {
             ptr = node->next;
             delete(node);
-            node = node->next;
+            node = ptr;
         }
         pVHead = NULL;
         pVTail = NULL;
         present = NULL;
+        next = NULL;
     }
 };
 
 struct AVPacketManager {
     int StreamNum;
-    struct AVPacketList *pVHead;
-    struct AVPacketList *pVTail;
+    struct AVPktList *pVHead;
+    struct AVPktList *pVTail;
     AVPacketManager() :StreamNum(0) {
-        pVHead = new AVPacketList();
-        pVTail = new AVPacketList();
+        pVHead = new AVPktList();
+        pVTail = pVHead;
     }
     ~AVPacketManager() {
         delete pVHead;
-        delete pVTail;
         pVHead = NULL;
         pVTail = NULL;
     }
@@ -68,12 +68,12 @@ int create_AVPacketManager(AVPacketManager*& AVPacketMag, int StreamNum);
 
 int create_packetNode(PacketNode*& pNode);
 
-int get_packetNode(PacketNode *pNode,AVPacketList *pList);
+int get_packetNode(PacketNode*& pNode, AVPktList *pList);
 
-int add_packetNode(AVPacketList *pList,PacketNode *pNode,HANDLE *mutex);
+int add_packetNode(AVPktList *pList,PacketNode *pNode,HANDLE *mutex);
 
-int update_AVPacketList(AVPacketList *pList,HANDLE *mutex);
+int update_AVPacketList(AVPktList *pList,HANDLE *mutex);
 
-int delete_AVPacketManager(AVPacketManager *AVPacketMag,HANDLE *mutex);
+int delete_AVPacketManager(AVPacketManager*& AVPacketMag, HANDLE *mutex);
 
 #endif

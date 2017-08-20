@@ -8,7 +8,7 @@ struct MessageNode {
     int used_flag;
     struct MessageNode *next;
     MessageNode(): CString(NULL),size(0),used_flag(0),next(NULL){
-       
+        CString = (INT8 *)malloc(sizeof(INT8));
     }
     ~MessageNode() {
         free(CString);        
@@ -22,19 +22,19 @@ struct subMessageList {
     struct MessageNode *pTail;
     struct MessageNode *present;
     struct subMessageList *next;
-    subMessageList():pHead(NULL),pTail(NULL),present(NULL),next(NULL) {
-        /*pHead = new MessageNode();
-        pTail = new MessageNode();
-        present = new MessageNode();
-        next = NULL;*/
+    subMessageList() {
+        pHead = new MessageNode();
+        pTail = pHead;
+        present = NULL;
+        next = NULL;
     }
     ~subMessageList() {
         MessageNode *node = pHead;
-        MessageNode *ptr = pHead;
+        MessageNode *ptr = node;
         while(node != NULL) {
             ptr = node->next;
             delete(node);
-            node = node->next;
+            node = ptr;
         }
         pHead = NULL;
         pTail = NULL;
@@ -74,7 +74,7 @@ struct MessageManager {
 
     MessageManager():StreamNum(0) {
         pVHead = new MessageList();
-        pVTail = NULL;       
+        pVTail = pVHead;       
     }
 
     ~MessageManager() {
@@ -85,14 +85,9 @@ struct MessageManager {
             delete(node);
             node = ptr;
         }
-        if (pVHead != NULL) {
-            delete pVHead;
-            pVHead = NULL;
-        }
-        if (pVTail != NULL) {
-            delete pVTail;
-            pVTail = NULL;
-        }
+        pVHead = NULL;
+        pVTail = NULL;
+        
     }
 };
 
@@ -100,7 +95,9 @@ struct MessageManager {
 struct InfoNode {
     SOCKET * socketID;
     MessageList *messageList;
-    InfoNode():socketID(NULL),messageList(NULL){}
+    InfoNode():socketID(NULL),messageList(NULL) {
+        
+    }
     ~InfoNode() {
         if (!socketID) {
             delete socketID;

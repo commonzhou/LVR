@@ -1,5 +1,5 @@
 #include "AVPacketManager.h"
-
+#include "catch.hpp"
 //************************************
 // Method:    创建AVPacketManager结构体，创建结构体中的所有AVPacketList
 // FullName:  create_AVPacketManager
@@ -44,9 +44,9 @@ int create_packetNode(PacketNode*& pNode)
 // Returns:   int -1失败 0成功
 // Qualifier:
 // Parameter: packetNode * pNode 获得的AVPacket节点
-// Parameter: AVPacketList * pList 寻找节点的链表
+// Parameter: AVPktList * pList 寻找节点的链表
 //************************************
-int get_packetNode( PacketNode *pNode,AVPacketList *pList )
+int get_packetNode(PacketNode*& pNode, AVPktList *pList)
 {
     if(pList == NULL) {
         return -1;
@@ -65,19 +65,36 @@ int get_packetNode( PacketNode *pNode,AVPacketList *pList )
 // Access:    public 
 // Returns:   int -1失败 0成功
 // Qualifier:
-// Parameter: AVPacketList * pList 增加节点前的数据包链表
+// Parameter: AVPktList * pList 增加节点前的数据包链表
 // Parameter: packetNode * pNode 增加的数据包指针
 // Parameter: HANDLE * mutex 该数据包链表未被其它线程使用
 //************************************
-int add_packetNode( AVPacketList *pList,PacketNode *pNode,HANDLE *mutex )
+int add_packetNode( AVPktList *pList,PacketNode *pNode,HANDLE *mutex )
 {
     WaitForSingleObject(mutex,INFINITE);
     if(pList == NULL) {
         return -1;
     }
-    pList->pVTail = pNode;
-    pNode->next = NULL;
-    pNode->used_flag = 0;
+    PacketNode *node = new PacketNode();
+    memcpy(node->bitstream, pNode->bitstream, sizeof(UINT8));
+    node->size = pNode->size;
+    node->PTS = pNode->PTS;
+    node->used_flag = pNode->PTS;
+    
+    if (pList->pVHead == pList->pVTail) {
+        pList->pVHead = node;
+        pList->pVTail = node;
+        pList->present = node;
+        pList->pVTail->next = NULL;
+    } else {
+        pList->pVTail->next = node;
+        pList->pVTail = node;
+        pList->present = node;
+        pList->pVTail->next = NULL;
+    }
+    node->used_flag = 0;
+
+    delete pNode;
     ReleaseMutex(mutex);
     return 0;
 }
@@ -88,10 +105,10 @@ int add_packetNode( AVPacketList *pList,PacketNode *pNode,HANDLE *mutex )
 // Access:    public 
 // Returns:   int -1失败 0成功
 // Qualifier:
-// Parameter: AVPacketList * pList 删除节点前的链表指针
+// Parameter: AVPktList * pList 删除节点前的链表指针
 // Parameter: HANDLE * mutex 节点删除时，该链表不被其它线程使用
 //************************************
-int update_AVPacketList( AVPacketList *pList,HANDLE *mutex )
+int update_AVPacketList( AVPktList *pList,HANDLE *mutex )
 {
     WaitForSingleObject(mutex,INFINITE);
     if(pList == NULL) {
@@ -116,7 +133,7 @@ int update_AVPacketList( AVPacketList *pList,HANDLE *mutex )
 // Parameter: AVPacketManager * AVPacketMag 待销毁的链表指针
 // Parameter: HANDLE * mutex 互斥锁，删除数据包管理链表时，该链表不被其它线程使用
 //************************************
-int delete_AVPacketManager( AVPacketManager *AVPacketMag,HANDLE *mutex )
+int delete_AVPacketManager(AVPacketManager*& AVPacketMag, HANDLE *mutex)
 {
     WaitForSingleObject(mutex,INFINITE);
     delete AVPacketMag;
@@ -126,4 +143,27 @@ int delete_AVPacketManager( AVPacketManager *AVPacketMag,HANDLE *mutex )
 }
 
 
-
+TEST_CASE("AVPacketManager","[AVPacketManager]") {
+    AVPacketManager *manager = NULL;
+    PacketNode *node = NULL;
+    SECTION("create AVPacketManager") {
+        create_AVPacketManager(manager, 0);
+        REQUIRE(manager != NULL);
+        REQUIRE(manager->StreamNum == 0);
+    }
+    SECTION("create packetNode") {
+        create_packetNode(node);
+        REQUIRE(node != NULL);
+    }
+    SECTION("add_packetNode") {
+        create_AVPacketManager(manager, 0);
+        create_packetNode(node);
+        add_packetNode(manager->pVHead, node, NULL);
+        REQUIRE(manager->pVHead != NULL);
+    }
+    SECTION("delete packetManager") {
+        create_AVPacketManager(manager, 0);
+        delete_AVPacketManager(manager, NULL);
+        REQUIRE(manager == NULL);
+    }
+}
