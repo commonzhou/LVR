@@ -135,37 +135,37 @@ int delete_AVFrameManager(AVFrameManager*& AVFrameMag, HANDLE *mutex)
     return 0;
 }
 
-
-TEST_CASE("AVFrameManager.", "[AVFrameManager]") {
-    AVFrameManager *manager = NULL;
-    SECTION("create_AVFrameManager") {
-        create_AVFrameManager(manager, 0);
-        REQUIRE(manager != NULL);
-        REQUIRE(manager->pProjectList != NULL);
-        REQUIRE(manager->pSPM != NULL);
-        REQUIRE(manager->psourceAList != NULL);
-    }
-    SECTION("add_AVFrameNode") {
-        create_AVFrameManager(manager, 0);
-        AVFrameNode *node = NULL;
-        create_AVFrameNode(node);
-        add_AVFrameNode(manager->pProjectList, node, NULL);
-        REQUIRE(node != NULL);
-    }
-    SECTION("get_AVFrameNode") {
-
-        create_AVFrameManager(manager, 0);
-        AVFrameNode *node = NULL;
-        create_AVFrameNode(node);
-        add_AVFrameNode(manager->pProjectList, node, NULL);
-        AVFrameNode *node2 = NULL;
-        get_AVFrameNode(node2, manager->pProjectList);
-        REQUIRE(node2 != NULL);
-    }
-    SECTION("delete_AVFrameManager") {
-        create_AVFrameManager(manager, 0);
-        REQUIRE(manager != NULL);
-        delete_AVFrameManager(manager, NULL);
-        REQUIRE(manager == NULL);
-    }
-}
+//
+//TEST_CASE("AVFrameManager.", "[AVFrameManager]") {
+//    AVFrameManager *manager = NULL;
+//    SECTION("create_AVFrameManager") {
+//        create_AVFrameManager(manager, 0);
+//        REQUIRE(manager != NULL);
+//        REQUIRE(manager->pProjectList != NULL);
+//        REQUIRE(manager->pSPM != NULL);
+//        REQUIRE(manager->psourceAList != NULL);
+//    }
+//    SECTION("add_AVFrameNode") {
+//        create_AVFrameManager(manager, 0);
+//        AVFrameNode *node = NULL;
+//        create_AVFrameNode(node);
+//        add_AVFrameNode(manager->pProjectList, node, NULL);
+//        REQUIRE(node != NULL);
+//    }
+//    SECTION("get_AVFrameNode") {
+//
+//        create_AVFrameManager(manager, 0);
+//        AVFrameNode *node = NULL;
+//        create_AVFrameNode(node);
+//        add_AVFrameNode(manager->pProjectList, node, NULL);
+//        AVFrameNode *node2 = NULL;
+//        get_AVFrameNode(node2, manager->pProjectList);
+//        REQUIRE(node2 != NULL);
+//    }
+//    SECTION("delete_AVFrameManager") {
+//        create_AVFrameManager(manager, 0);
+//        REQUIRE(manager != NULL);
+//        delete_AVFrameManager(manager, NULL);
+//        REQUIRE(manager == NULL);
+//    }
+//}

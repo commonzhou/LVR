@@ -53,6 +53,7 @@ struct MessageList {
     MessageList():streamID(0) {
         pSRCL = new subMessageList();
         pRRCL = new subMessageList();
+
         pRCL = new subMessageList();
         next = NULL;
     }

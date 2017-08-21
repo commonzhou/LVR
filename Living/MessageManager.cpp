@@ -123,7 +123,7 @@ int update_messageNode( subMessageList *pList, HANDLE *mutex )
         MessageNode *afternode = NULL;
         MessageNode *beforenode = pList->pHead;
 
-        // 遍历从pHead到present的节点，
+        // 遍历从pHead到present的节点
         while (node != NULL && node != presentNode) {
             afternode = node->next;
             if(node->used_flag) {
@@ -161,32 +161,32 @@ int delete_messageManager(MessageManager*& messageMag, HANDLE *mutex)
     return 0;
 }
 
-TEST_CASE("MessageManager", "[MessageManager]") {
-    MessageManager *manager = NULL;
-    SECTION("create messageManager") {
-        create_messageManager(manager, 0);
-        REQUIRE(manager != 0);
-        REQUIRE(manager->StreamNum == 0);
-    }
-    SECTION("create messageNode") {
-        MessageNode *node = NULL;
-        create_messageNode(node);
-        REQUIRE(node != NULL);
-    }
-    SECTION("add messageNode") {
-        create_messageManager(manager, 0);
-        MessageNode *node = NULL;
-        create_messageNode(node);
-        add_messageNode(manager->pVHead->pRCL, node, NULL);
-        REQUIRE(manager->pVHead != NULL);
-        REQUIRE(manager->pVHead->pRCL != NULL);
-    }
-    SECTION("delete messageManager") {
-        create_messageManager(manager, 0);
-        MessageNode *node = NULL;
-        create_messageNode(node);
-        add_messageNode(manager->pVHead->pRCL, node, NULL);
-        delete_messageManager(manager, NULL);
-        REQUIRE(manager == NULL);
-    }
-}
+//TEST_CASE("MessageManager", "[MessageManager]") {
+//    MessageManager *manager = NULL;
+//    SECTION("create messageManager") {
+//        create_messageManager(manager, 0);
+//        REQUIRE(manager != 0);
+//        REQUIRE(manager->StreamNum == 0);
+//    }
+//    SECTION("create messageNode") {
+//        MessageNode *node = NULL;
+//        create_messageNode(node);
+//        REQUIRE(node != NULL);
+//    }
+//    SECTION("add messageNode") {
+//        create_messageManager(manager, 0);
+//        MessageNode *node = NULL;
+//        create_messageNode(node);
+//        add_messageNode(manager->pVHead->pRCL, node, NULL);
+//        REQUIRE(manager->pVHead != NULL);
+//        REQUIRE(manager->pVHead->pRCL != NULL);
+//    }
+//    SECTION("delete messageManager") {
+//        create_messageManager(manager, 0);
+//        MessageNode *node = NULL;
+//        create_messageNode(node);
+//        add_messageNode(manager->pVHead->pRCL, node, NULL);
+//        delete_messageManager(manager, NULL);
+//        REQUIRE(manager == NULL);
+//    }
+//}

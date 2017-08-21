@@ -4,7 +4,9 @@ static struct sockaddr_in server_addr;
 #define bufferSize 4096
 static HANDLE hMutex;
 
-// TODO: hMutex现在没有合适的销毁和创建机制
+// TODO: 不太确定我这种互斥锁的使用会不会出问题
+// 发送消息的各个线程函数只是读取，因此不需要使用互斥锁，而接收消息的线程函数因为需要将新数据写入
+// 链表结构，因此需要用一把锁来保持数据区域，而这把锁应该为所有接收消息的线程所共享
 
 unsigned int _stdcall sendFakeMessage(void *params);
 
@@ -27,10 +29,9 @@ unsigned int _stdcall receiveRealMessage(void *params);
 // Parameter: SOCKET * socket_port TCP/IP连接套接字
 //************************************
 int create_socket(char *IP_SERVER, int portID, void *privateSpace, SOCKET *socket_port) {
+    //LPCTSTR name = L"controllerConnect";
+    //hMutex = CreateMutex(NULL, FALSE, name);
     hMutex = CreateMutex(NULL, FALSE, NULL);
-    if (hMutex == NULL) {
-        printf("CreateMutex error in %s\n", __FUNCTION__);
-    }
     WSAData wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         printf("Initialised failed : %d\n", WSAGetLastError());
@@ -65,13 +66,14 @@ int create_socket(char *IP_SERVER, int portID, void *privateSpace, SOCKET *socke
 // Parameter: MessageList * pList 接收消息链表
 //************************************
 int activate_receive(HANDLE *receiver, void *privateSpace, SOCKET *socket_port, MessageList * pList) {
+
     printf("socket id:%d, %s\n", *socket_port, __FUNCTION__);
     // 这里的activate_receive应该是每个线程单独一个吧
-    InfoNode inode;
-    inode.messageList = pList;
-    inode.socketID = socket_port;
+    InfoNode *iNode = new InfoNode();
+    iNode->messageList = pList;
+    iNode->socketID = socket_port;
 
-    *receiver = (HANDLE)_beginthreadex(NULL, 0, receiveRealMessage, (void *)&inode, 0, NULL);
+    *receiver = (HANDLE)_beginthreadex(NULL, 0, receiveFakeMessage, (void *)iNode, 0, NULL);
     return 0;
 }
 
@@ -102,12 +104,10 @@ int destroy_receive(HANDLE *receiver, void *privateSpace) {
 //************************************
 int activate_send(HANDLE *send, void *privateSpace, SOCKET *socket_port, MessageList *pList) {
     printf("socket id:%d, %s\n", *socket_port, __FUNCTION__);
-    InfoNode inode;
-    inode.messageList = pList;
-    inode.socketID = socket_port;
-
-    *send = (HANDLE)_beginthreadex(NULL, 0, sendRealMessage, (void *)&inode, 0, NULL);
-
+    InfoNode *iNode = new InfoNode();
+    iNode->messageList = pList;
+    iNode->socketID = socket_port;
+    *send = (HANDLE)_beginthreadex(NULL, 0, sendFakeMessage, (void *)iNode, 0, NULL);
     return 0;
 }
 
@@ -123,8 +123,8 @@ int activate_send(HANDLE *send, void *privateSpace, SOCKET *socket_port, Message
 //************************************
 int destroy_send(HANDLE *send, void *privateSpace, SOCKET *socket_port) {
     closesocket(*socket_port);
-    CloseHandle(*send);
     CloseHandle(hMutex);
+    CloseHandle(*send);
     WSACleanup();
     return 0;
 }
@@ -145,7 +145,7 @@ unsigned int _stdcall sendFakeMessage(void *params) {
         }
         printf("socketID:%d\t,index:%d:\tSend successfully.%s\n", *socketID, i, message);
     }
-    
+    delete node;
     return 0;
 }
 
@@ -166,6 +166,7 @@ unsigned int _stdcall sendRealMessage(void *params) {
         update_messageNode(subMessageList, &hMutex);
     }
     ReleaseMutex(hMutex);
+    delete node;
     return 0;
 }
 
@@ -182,20 +183,25 @@ unsigned int _stdcall receiveFakeMessage(void *params) {
         puts(buffer);
         memset(buffer, 0, SOCKETBUFFERSIZE);
     }
-    
+    delete node;
     return 0;
 }
 
+
 unsigned int _stdcall receiveRealMessage(void *params) {
-    WaitForSingleObject(hMutex, INFINITE);
+    
     InfoNode *node = (InfoNode *)params;
     SOCKET *socketID = node->socketID;
+    MessageList *list = node->messageList;
     MessageNode *messageNode = NULL;
-    char buffer[SOCKETBUFFERSIZE] = { 0 };
-    int readSize = 0;
     UINT8 *type = (UINT8 *)malloc(sizeof(UINT8));
     UINT32 *length = (UINT32 *)malloc(sizeof(UINT32));
+
+    char buffer[SOCKETBUFFERSIZE] = { 0 };
+    int readSize = 0;
+    
     while ((readSize = recv(*socketID, buffer, SOCKETBUFFERSIZE, 0)) > 0) {
+
 
         buffer[readSize] = '\0';
         puts(buffer);
@@ -217,24 +223,39 @@ unsigned int _stdcall receiveRealMessage(void *params) {
         messageNode->next = NULL;
 
         // 根据类型将node加入到对应的消息队列中
-        if (*type == 0x01) {
-            subMessageList *subMessageList = node->messageList->pRCL;
-            add_messageNode(subMessageList, messageNode, &hMutex);
+        // TODO: 目前对于0x01(编码参数信息)和0x04(终止编码)信息该放入MessageList中的哪个链表没有明确定义
+        WaitForSingleObject(hMutex, INFINITE);
+        switch(*type) {
+        case 0x01: // VRLSController发送VRLSTranscoder的初始化编码参数信息
+            
+            add_messageNode(list->pRCL, messageNode, &hMutex);
+            break;
+        case 0x02: // VRLSController发送VRLSTranscoder的码控参数
+            
+            add_messageNode(list->pRRCL, messageNode, &hMutex);
+            break;
+        case 0x04: // VRLSController发送终止编码         
+            add_messageNode(list->pRCL, messageNode, &hMutex);
+            break;
+        default:
+            printf("Wrong Message Type:%s\n", __FUNCTION__);
+            break;
         }
+
+        ReleaseMutex(hMutex);
     }
     free(type);
     free(length);
-    ReleaseMutex(hMutex);
     delete node;
     return 0;
 }
 
-TEST_CASE("ControllerConnect","[ControllerConnect]") {
-    char *IP = "127.0.0.1";
-    int portID = 1453;
-    SOCKET socket;
-    SECTION("create_socket") {
-        create_socket(IP, portID, NULL, &socket);
-        REQUIRE(socket != INVALID_SOCKET);
-    }
-}
+//TEST_CASE("ControllerConnect","[ControllerConnect]") {
+//    char *IP = "127.0.0.1";
+//    int portID = 1453;
+//    SOCKET socket;
+//    SECTION("create_socket") {
+//        create_socket(IP, portID, NULL, &socket);
+//        REQUIRE(socket != INVALID_SOCKET);
+//    }
+//}

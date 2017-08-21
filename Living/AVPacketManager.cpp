@@ -137,27 +137,27 @@ int delete_AVPacketManager(AVPacketManager*& AVPacketMag, HANDLE *mutex)
 }
 
 
-TEST_CASE("AVPacketManager","[AVPacketManager]") {
-    AVPacketManager *manager = NULL;
-    PacketNode *node = NULL;
-    SECTION("create AVPacketManager") {
-        create_AVPacketManager(manager, 0);
-        REQUIRE(manager != NULL);
-        REQUIRE(manager->StreamNum == 0);
-    }
-    SECTION("create packetNode") {
-        create_packetNode(node);
-        REQUIRE(node != NULL);
-    }
-    SECTION("add_packetNode") {
-        create_AVPacketManager(manager, 0);
-        create_packetNode(node);
-        add_packetNode(manager->pVHead, node, NULL);
-        REQUIRE(manager->pVHead != NULL);
-    }
-    SECTION("delete packetManager") {
-        create_AVPacketManager(manager, 0);
-        delete_AVPacketManager(manager, NULL);
-        REQUIRE(manager == NULL);
-    }
-}
+//TEST_CASE("AVPacketManager","[AVPacketManager]") {
+//    AVPacketManager *manager = NULL;
+//    PacketNode *node = NULL;
+//    SECTION("create AVPacketManager") {
+//        create_AVPacketManager(manager, 0);
+//        REQUIRE(manager != NULL);
+//        REQUIRE(manager->StreamNum == 0);
+//    }
+//    SECTION("create packetNode") {
+//        create_packetNode(node);
+//        REQUIRE(node != NULL);
+//    }
+//    SECTION("add_packetNode") {
+//        create_AVPacketManager(manager, 0);
+//        create_packetNode(node);
+//        add_packetNode(manager->pVHead, node, NULL);
+//        REQUIRE(manager->pVHead != NULL);
+//    }
+//    SECTION("delete packetManager") {
+//        create_AVPacketManager(manager, 0);
+//        delete_AVPacketManager(manager, NULL);
+//        REQUIRE(manager == NULL);
+//    }
+//}
