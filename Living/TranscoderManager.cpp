@@ -1,7 +1,11 @@
 #include "TranscoderManager.h"
 #include "MessageManager.h"
+#include <iostream>  
+#include <string>  
+#include <vector>  
 #define LENGTH_OF_LISTEN_QUEUE     20
-
+using namespace std;  
+int threadNum=0;
 unsigned int _stdcall handleMessage(void *params) {
     InfoNode *node = (InfoNode *)params;
     MessageList *list = node->messageList;
@@ -10,7 +14,7 @@ unsigned int _stdcall handleMessage(void *params) {
     MessageNode *present=pRCL->present;
     int size=present->size;
     INT8 *CString=present->CString;
-    printf("进入子线程\n");
+    printf("enter the son thread\n");
     int readSize;
     char sendBuffer[2000];
     memset(sendBuffer,0,2000);
@@ -20,15 +24,61 @@ unsigned int _stdcall handleMessage(void *params) {
     while ((readSize = recv(*socketID, recvBuffer, 2000, 0)) > 0) {
         recvBuffer[readSize] = '\0';
         puts(recvBuffer);
+        //////////////////////////////////                     parse the recv
+        std::vector<char*> splits;
+        char delims[] = "|";
+        char *result = NULL;
+        result = strtok( recvBuffer, delims );
+        while( result != NULL ) {
+            printf( "result is %s\n", result );
+            splits.push_back(result);
+            result = strtok( NULL, delims );     
+        }    
+        printf("%d\n",splits.at(0));
+        UINT8 typeof;UINT32 lengthof;UINT8 encNumof;  
+        typeof=(UINT8)strtol (splits.at(0),NULL,16);
+        lengthof=(UINT32)strtol(splits.at(1),NULL,16);
+        printf("type is %d\n",typeof);
+        if (typeof == 0x01) {
+            UINT8 encNum = (UINT8)strtol(splits.at(2), NULL, 16);
+            printf("encNum is %d\n", encNum);
+            int offset = 0;
+            int index = 3;
+            for (int i = 1; i <= encNum; i++) {
+                UINT8 paramNum = (UINT8)strtol(splits.at(index), NULL, 16);
+                printf("\tparamNum is %d\n", paramNum);
+                for (int j = 1; j <= paramNum; j++) {
+                    UINT8 paramType = (UINT8)strtol(splits.at(index + 2*j-1), NULL, 16);
+                    UINT32 valueof = (UINT32)strtol(splits.at(index + j * 2), NULL, 16);
+                    printf("\t\tparamType is %x, ", paramType);
+                    printf("value is %x\n", valueof);
+                }
+                offset = paramNum;        
+                index = index + offset*2 + 1;
+            }
+        } else if (typeof == 0x41) {
+
+        } else if (typeof == 0x02) {
+
+        } else if (typeof == 0x42) {
+
+        } else if (typeof == 0x43) {
+
+        } else if (typeof == 0x04) {
+
+        }
+        else{
+            printf("This is not TLV information\n");
+        } 
+  
         memset(recvBuffer,0,2000);
-        if(send(*socketID , sendBuffer , strlen(sendBuffer) , 0)<0) {
+        if(send(*socketID , sendBuffer , strlen(sendBuffer)+1 , 0)<0) {         //plus 1 makes the last 0 could be sent to client
             printf("Send failed:%d",WSAGetLastError());
             return -1;
         }
         printf("Send message successfully.\n");
     }
     closesocket(*socketID);
-    CloseHandle(GetCurrentThread());
     printf("Will return from %s\n",__FUNCTION__);
     return 0;
 }
@@ -69,33 +119,46 @@ int init_transcoderManager( HANDLE *transcoderManager, SOCKET *socketID,MessageL
         printf("Server Listen Failed : %d\n" , WSAGetLastError());
         return -1;
     }
+    printf("Welcome ,intial success\n");
     length= sizeof(struct sockaddr_in);
-    while(1){
+    timeval timeout = {600, 0};
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(*socketID, &fds);
+    int b=select(*socketID+1, &fds, NULL, NULL, &timeout);
+    if(select(*socketID+1, &fds, NULL, NULL, &timeout)==SOCKET_ERROR){
+        printf("select failed with error code : %d" , WSAGetLastError());
+        return -1;
+    };
+    printf("You have %d handle\n",b);
+
+    if (FD_ISSET(*socketID, &fds))
+    {
+        while(1){
         new_socket = accept(*socketID , (struct sockaddr *)&client, &length);
-    
+
         if (new_socket <0)
         {
             printf("accept failed with error code : %d" , WSAGetLastError());
             return -1;
         }
+        threadNum++;
         puts("Connection accepted");
         info->socketID=&new_socket;                            //very important
         printf("accept is:%d\n",new_socket);
         transcoderManager = (HANDLE *)malloc(sizeof(HANDLE));
         *transcoderManager = (HANDLE)_beginthreadex(NULL, 0, handleMessage, (void *)info,0, NULL);
-        //WaitForSingleObject(*transcoderManager, 5000);
         if(*transcoderManager==0){
             printf("CreateThread failed (%d)\n", GetLastError());
             return -1;
         }
-         printf("Create Thread Successfully: %s.\n",__FUNCTION__);
+        printf("Create %d Thread Successfully:%s.\n",a,__FUNCTION__);
+        }
     }
-    //************************************
-    //Socket will be destroyed here
-    //************************************
-   closesocket(*socketID);
-   WSACleanup();
-   printf("Will return from %s\n", __FUNCTION__);
+    closesocket(*socketID);
+    delete(info);
+    info=NULL;
+    printf("Will return from %s\n", __FUNCTION__);
     return 0;
 }
 
@@ -116,7 +179,6 @@ int activate_transcoderManager(HANDLE *transcoderManager, SOCKET *socketID, Mess
     if(ResumeThread(*transcoderManager)==-1){
         return -1;
     };
-
     return 0;
 }
 
@@ -135,7 +197,6 @@ int destroy_transcoderManager( HANDLE *transcoderManager,void *privateSpace ) {
     if(CloseHandle(*transcoderManager)==0){
         return -1;
     };
+    WSACleanup();
     return 0;
 }
-
-
