@@ -63,7 +63,10 @@ unsigned int _stdcall handleMessage(void *params) {
         } else if (typeof == 0x42) {
 
         } else if (typeof == 0x43) {
-
+            UINT8 outputStreamIndex=(UINT8)strtol(splits.at(2),NULL,16);
+            UINT64 pts=(UINT64)strtol(splits.at(3),NULL,16);
+            UINT8 averageFrameRate=(UINT8)strtol(splits.at(4),NULL,16);
+            UINT8 instantFrameRate=(UINT8)strtol(splits.at(5),NULL,16);
         } else if (typeof == 0x04) {
 
         }
