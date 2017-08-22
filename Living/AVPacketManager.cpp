@@ -1,14 +1,12 @@
 #include "AVPacketManager.h"
 #include "catch.hpp"
-//************************************
-// Method:    创建AVPacketManager结构体，创建结构体中的所有AVPacketList
-// FullName:  create_AVPacketManager
-// Access:    public 
-// Returns:   int -1失败 0成功
-// Qualifier:
-// Parameter: AVPacketManager * AVPacketMag 创建链表空间，待存放读取的音视频数据包
-// Parameter: int StreamNum 当前节点要编码的数量, tile+音频+全图
-//************************************
+
+/**
+ * \brief 创建AVPacketManager结构体，创建结构体中的所有AVPacketList
+ * \param AVPacketMag 待存放读取的音视频数据包
+ * \param StreamNum 当前节点要编码的数量, tile+音频+全图
+ * \return int -1失败 0成功
+ */
 int create_AVPacketManager(AVPacketManager*& AVPacketMag, int StreamNum)
 {
     AVPacketMag = new AVPacketManager();
@@ -19,17 +17,14 @@ int create_AVPacketManager(AVPacketManager*& AVPacketMag, int StreamNum)
      return 0;
 }
 
-//************************************
-// Method:    创建packet节点，各参数为空，以备每个线程自己填充
-// FullName:  create_packetNode
-// Access:    public 
-// Returns:   int -1失败 0成功
-// Qualifier:
-// Parameter: packetNode * pNode new创建节点结构体
-//************************************
+/**
+ * \brief 创建packet节点，各参数为空，以备每个线程自己填充
+ * \param pNode new创建节点结构体
+ * \return int -1失败 0成功
+ */
 int create_packetNode(PacketNode*& pNode)
 {
-    // 在这里进行创建，在update_AVPacketList()里进行删除，所以不需要显示删除
+  
     pNode = new PacketNode();
     if(pNode == NULL) {
         return -1;
@@ -38,15 +33,12 @@ int create_packetNode(PacketNode*& pNode)
     }
 }
 
-//************************************
-// Method:    获取AVPacketList中present所指向的节点
-// FullName:  get_packetNode
-// Access:    public 
-// Returns:   int -1失败 0成功
-// Qualifier:
-// Parameter: packetNode * pNode 获得的AVPacket节点
-// Parameter: AVPktList * pList 寻找节点的链表
-//************************************
+/**
+ * \brief 获取AVPacketList中present所指向的节点。目前获取的是链表的尾节点
+ * \param pNode 获得的AVPacket节点
+ * \param pList 寻找节点的链表
+ * \return int -1失败 0成功
+ */
 int get_packetNode(PacketNode*& pNode, AVPktList *pList)
 {
     if(pList == NULL) {
@@ -60,16 +52,14 @@ int get_packetNode(PacketNode*& pNode, AVPktList *pList)
     }
 }
 
-//************************************
-// Method:    在数据包链表中加入数据包节点pNode，设置pNode中的used_flag为0
-// FullName:  add_packetNode
-// Access:    public 
-// Returns:   int -1失败 0成功
-// Qualifier:
-// Parameter: AVPktList * pList 增加节点前的数据包链表
-// Parameter: packetNode * pNode 增加的数据包指针
-// Parameter: HANDLE * mutex 该数据包链表未被其它线程使用
-//************************************
+
+/**
+ * \brief 在数据包链表中加入数据包节点pNode，设置pNode中的used_flag为0
+ * \param pList 增加节点前的数据包链表
+ * \param pNode 要增加的数据包指针
+ * \param mutex 互斥锁
+ * \return int -1失败 0成功
+ */
 int add_packetNode( AVPktList *pList,PacketNode *pNode,HANDLE *mutex )
 {
     WaitForSingleObject(mutex,INFINITE);
@@ -93,15 +83,13 @@ int add_packetNode( AVPktList *pList,PacketNode *pNode,HANDLE *mutex )
     return 0;
 }
 
-//************************************
-// Method:    删除已经被使用的数据包节点
-// FullName:  update_AVPacketList
-// Access:    public 
-// Returns:   int -1失败 0成功
-// Qualifier:
-// Parameter: AVPktList * pList 删除节点前的链表指针
-// Parameter: HANDLE * mutex 节点删除时，该链表不被其它线程使用
-//************************************
+
+/**
+ * \brief 删除已经被使用的数据包节点
+ * \param pList 删除节点前的链表指针
+ * \param mutex 互斥锁
+ * \return int -1失败 0成功
+ */
 int update_AVPacketList( AVPktList *pList,HANDLE *mutex )
 {
     WaitForSingleObject(mutex,INFINITE);
@@ -118,15 +106,13 @@ int update_AVPacketList( AVPktList *pList,HANDLE *mutex )
     return 0;
 }
 
-//************************************
-// Method:    销毁结构链表
-// FullName:  delete_AVPacketManager
-// Access:    public 
-// Returns:   int -1失败 0成功
-// Qualifier:
-// Parameter: AVPacketManager * AVPacketMag 待销毁的链表指针
-// Parameter: HANDLE * mutex 互斥锁，删除数据包管理链表时，该链表不被其它线程使用
-//************************************
+
+/**
+ * \brief 销毁结构链表
+ * \param AVPacketMag 待销毁的链表指针
+ * \param mutex 互斥锁
+ * \return int -1失败 0成功
+ */
 int delete_AVPacketManager(AVPacketManager*& AVPacketMag, HANDLE *mutex)
 {
     WaitForSingleObject(mutex,INFINITE);
@@ -137,6 +123,7 @@ int delete_AVPacketManager(AVPacketManager*& AVPacketMag, HANDLE *mutex)
 }
 
 
+// 以下为单元测试代码
 //TEST_CASE("AVPacketManager","[AVPacketManager]") {
 //    AVPacketManager *manager = NULL;
 //    PacketNode *node = NULL;

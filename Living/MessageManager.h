@@ -53,7 +53,6 @@ struct MessageList {
     MessageList():streamID(0) {
         pSRCL = new subMessageList();
         pRRCL = new subMessageList();
-
         pRCL = new subMessageList();
         next = NULL;
     }
@@ -67,7 +66,7 @@ struct MessageList {
     }
 };
 
-
+// TODO: 每多一个Transcoder节点，MessageManager中的链表应该就多一个元素
 struct MessageManager {
     int StreamNum; // 当前节点要编码的数量, tile+音频+全图
     struct MessageList *pVHead; // 每个encoder对应一个list

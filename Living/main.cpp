@@ -4,7 +4,7 @@
 char *IP_SERVER = "192.168.4.97";
 //char *IP_SERVER = "127.0.0.1";
 int portID = 7747;
-#define handleNum 2
+#define handleNum 1
 #define transcoderNum 2
 
 int main() {
@@ -15,27 +15,27 @@ int main() {
 
     MessageManager *messageManager = NULL;
     create_messageManager(messageManager, 0);
-    MessageNode *node = NULL;
-    create_messageNode(node);
-    node->used_flag = 0;
-    node->next = NULL;
-    node->size = 1;
-    node->CString = (INT8 *)malloc(sizeof(INT8)+1);
-    char value = 0x41;
-    memcpy(node->CString, &value, sizeof(char));
-    node->CString[sizeof(char)] = '\0';
-    add_messageNode(messageManager->pVHead->pRCL, node, NULL);
+    //MessageNode *node = NULL;
+    //create_messageNode(node);
+    //node->used_flag = 0;
+    //node->next = NULL;
+    //node->size = 1;
+    //node->CString = (INT8 *)malloc(sizeof(INT8)+1);
+    //char value = 0x41;
+    //memcpy(node->CString, &value, sizeof(char));
+    //node->CString[sizeof(char)] = '\0';
+    //add_messageNode(messageManager->pVHead->pRCL, node, NULL);
 
-    node = NULL;
-    create_messageNode(node);
-    node->used_flag = 0;
-    node->next = NULL;
-    node->size = 1;
-    node->CString = (INT8 *)malloc(sizeof(INT8)+1);
-    value = 0x42;
-    memcpy(node->CString, &value, sizeof(char));
-    node->CString[sizeof(char)] = '\0';
-    add_messageNode(messageManager->pVHead->pRCL, node, NULL);
+    //node = NULL;
+    //create_messageNode(node);
+    //node->used_flag = 0;
+    //node->next = NULL;
+    //node->size = 1;
+    //node->CString = (INT8 *)malloc(sizeof(INT8)+1);
+    //value = 0x42;
+    //memcpy(node->CString, &value, sizeof(char));
+    //node->CString[sizeof(char)] = '\0';
+    //add_messageNode(messageManager->pVHead->pRCL, node, NULL);
 
     for (int i = 0; i < handleNum;i++) {
         create_socket(IP_SERVER, portID, NULL,&sockets[i]);   

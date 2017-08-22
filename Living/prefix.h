@@ -11,17 +11,6 @@
 #include <string>
 #pragma comment(lib,"ws2_32.lib")
 
-
-
-
-#ifdef DEBUG
-#define debug_print(fmt, ...) \
-    do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
-    __LINE__, __func__, __VA_ARGS__); } while (0)
-#endif
-
-
-
 #define SOCKETBUFFERSIZE 4096
 
 enum MEDIAType {
@@ -103,6 +92,11 @@ struct VRLSParam {
     struct TranscoderParam *TransParam;
 };
 
+struct Param {
+    UINT8 paramType;
+    UINT32 value;
+};
+
 struct EncodingParam {
     UINT8 paramType;
     UINT32 value;
@@ -111,30 +105,6 @@ struct EncodingParam {
 struct ParamNode {
     UINT8 paramNum;
     struct EncodingParam *param;
-};
-
-struct InitPayload {
-    UINT8 encNum;
-    ParamNode *paramList;
-};
-
-struct FlexibleInitPayload {
-    UINT8 encNum;
-    char paramLists[0];
-};
-
-
-
-struct TLV {
-    UINT8 type;
-    UINT32 length;
-    void * payload;
-};
-
-struct FlexibleTLV {
-    UINT8 type;
-    UINT32 length;
-    char payload[0];
 };
 
 struct EncodeSpeed {
